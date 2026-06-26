@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookVyrse — AI-Powered Book Mentor for Students</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#080B18;--card:rgba(255,255,255,0.04);--card2:rgba(255,255,255,0.07);
+  --purple:#7C3AED;--purple-glow:rgba(124,58,237,0.25);--blue:#2563EB;
+  --gold:#FBBF24;--gold-soft:rgba(251,191,36,0.12);
+  --white:#F1F5F9;--muted:#64748B;--border:rgba(255,255,255,0.08);
+  --green:#22c55e;--red:#ef4444;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--void);color:var(--white);overflow-x:hidden;line-height:1.6}
+#scroll-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,#7C3AED,#2563EB,#FBBF24);z-index:999;transition:width .08s linear}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.35}
+nav{position:fixed;top:3px;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;background:rgba(8,11,24,.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);transition:padding .3s}
+nav.scrolled{padding:9px 5%}
+.logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.5px;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer}
+.logo span{-webkit-text-fill-color:var(--gold)}
+nav ul{list-style:none;display:flex;gap:22px}
+nav ul a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}
+nav ul a:hover{color:var(--white)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-login-btn{background:transparent;color:var(--white);border:1px solid var(--border);padding:8px 18px;border-radius:50px;font-size:.84rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.nav-login-btn:hover{border-color:var(--purple);background:var(--purple-glow)}
+.nav-cta{background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.84rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-block}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 24px var(--purple-glow)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:24px;height:2px;background:var(--white);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:56px;left:0;right:0;background:rgba(8,11,24,.98);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:16px 5%;z-index:99;flex-direction:column}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:var(--white);text-decoration:none;font-size:.95rem;font-weight:500;padding:13px 0;border-bottom:1px solid var(--border)}
+section{position:relative;z-index:1}
+.section-tag{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:12px;display:block}
+h2.section-title{font-family:'Sora',sans-serif;font-size:clamp(1.75rem,3.3vw,2.9rem);font-weight:800;letter-spacing:-1.5px;line-height:1.12;margin-bottom:16px}
+.section-sub{color:var(--muted);font-size:.98rem;line-height:1.75;margin-bottom:44px;max-width:520px}
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:130px 5% 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-soft);border:1px solid rgba(251,191,36,.3);border-radius:50px;padding:6px 16px;font-size:.76rem;font-weight:700;color:var(--gold);margin-bottom:26px;letter-spacing:.8px;text-transform:uppercase}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1.hero-title{font-family:'Sora',sans-serif;font-size:clamp(2.3rem,5.2vw,4.6rem);font-weight:800;line-height:1.08;letter-spacing:-2px;max-width:840px;margin-bottom:20px}
+.grad{background:linear-gradient(135deg,#A78BFA 0%,#60A5FA 50%,#FBBF24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--muted);font-size:1.08rem;max-width:540px;line-height:1.75;margin-bottom:36px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;border:none;padding:14px 32px;border-radius:50px;font-size:.96rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .2s,box-shadow .3s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 44px var(--purple-glow)}
+.btn-secondary{background:transparent;color:var(--white);border:1px solid var(--border);padding:14px 32px;border-radius:50px;font-size:.96rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-secondary:hover{border-color:var(--purple);background:var(--purple-glow)}
+.journey-path{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin-top:54px;max-width:880px;width:100%}
+.j-node{display:flex;flex-direction:column;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(16px);border-radius:20px;padding:18px 14px;min-width:108px;flex:1;transition:transform .3s,box-shadow .3s;animation:fadeUp .6s both}
+.j-node:hover{transform:translateY(-6px);box-shadow:0 0 28px var(--purple-glow);border-color:rgba(124,58,237,.5)}
+.j-node .icon{font-size:1.7rem}.j-node .lbl{font-size:.68rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.8px}.j-node .ttl{font-family:'Sora',sans-serif;font-size:.84rem;font-weight:700;text-align:center}
+.j-conn{width:34px;height:2px;background:linear-gradient(90deg,#7C3AED,#2563EB);flex-shrink:0;position:relative}
+.j-conn::after{content:'›';position:absolute;right:-8px;top:-11px;color:#2563EB;font-size:1.3rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.j-node:nth-child(1){animation-delay:.1s}.j-node:nth-child(3){animation-delay:.25s}.j-node:nth-child(5){animation-delay:.4s}.j-node:nth-child(7){animation-delay:.55s}.j-node:nth-child(9){animation-delay:.7s}
+/* SOCIAL PROOF */
+.social-proof-strip{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;padding:36px 5% 0;position:relative;z-index:1}
+.sp-item{display:flex;align-items:center;gap:9px}
+.sp-num{font-family:'Sora',sans-serif;font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sp-label{font-size:.8rem;color:var(--muted);line-height:1.3}
+.sp-div{width:1px;height:34px;background:var(--border)}
+/* MARQUEE */
+.marquee-section{padding:44px 0;overflow:hidden;background:linear-gradient(180deg,transparent,rgba(124,58,237,.04),transparent);position:relative;z-index:1}
+.marquee-wrapper{display:flex;width:max-content;animation:marquee 36s linear infinite}
+.marquee-wrapper:hover{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-item{display:inline-flex;align-items:center;gap:9px;padding:9px 24px;border-right:1px solid var(--border);font-size:.86rem;font-weight:500;color:var(--muted);flex-shrink:0;white-space:nowrap}
+.marquee-item span:last-child{color:var(--white);font-weight:600}
+/* PROBLEM */
+#problem{padding:90px 5%}
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.problem-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:26px 22px;backdrop-filter:blur(10px);transition:border-color .3s,box-shadow .3s,transform .3s}
+.problem-card:hover{border-color:rgba(124,58,237,.4);box-shadow:0 0 28px var(--purple-glow);transform:translateY(-4px)}
+.problem-card .p-icon{font-size:1.7rem;margin-bottom:12px}
+.problem-card h3{font-family:'Sora',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:7px}
+.problem-card p{color:var(--muted);font-size:.86rem;line-height:1.6}
+.ecosystem-row{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-top:64px}
+.eco-item{display:flex;flex-direction:column;align-items:center;gap:9px;flex:1;min-width:110px}
+.eco-icon-box{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid var(--border);background:var(--card);backdrop-filter:blur(10px);transition:transform .3s}
+.eco-icon-box:hover{transform:scale(1.1);box-shadow:0 0 22px var(--purple-glow)}
+.e1 .eco-icon-box{background:rgba(124,58,237,.12);border-color:rgba(124,58,237,.3)}
+.e2 .eco-icon-box{background:rgba(37,99,235,.12);border-color:rgba(37,99,235,.3)}
+.e3 .eco-icon-box{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.2)}
+.e4 .eco-icon-box{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2)}
+.eco-label{font-size:.76rem;font-weight:600;color:var(--muted)}
+.eco-conn{width:42px;height:1px;background:linear-gradient(90deg,#7C3AED,#2563EB)}
+/* HOW IT WORKS */
+#how-it-works{padding:90px 5%}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px 24px;backdrop-filter:blur(10px);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.step-card:hover{transform:translateY(-5px);box-shadow:0 0 38px var(--purple-glow)}
+.step-card::before{content:attr(data-step);position:absolute;top:-8px;right:18px;font-family:'Sora',sans-serif;font-size:5rem;font-weight:800;color:rgba(124,58,237,.07);line-height:1}
+.step-icon-wrap{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:18px}
+.si-1{background:rgba(124,58,237,.15)}.si-2{background:rgba(37,99,235,.15)}.si-3{background:rgba(251,191,36,.1)}.si-4{background:rgba(34,197,94,.1)}
+.step-card h3{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;margin-bottom:9px}
+.step-card p{color:var(--muted);font-size:.86rem;line-height:1.65}
+/* FEATURES */
+#features{padding:90px 5%;background:linear-gradient(180deg,transparent,rgba(37,99,235,.04),transparent)}
+.features-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.features-list{display:flex;flex-direction:column;gap:12px}
+.feature-item{display:flex;gap:16px;padding:18px;background:var(--card);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(10px);transition:border-color .3s,transform .3s,background .3s;cursor:pointer}
+.feature-item:hover{border-color:rgba(124,58,237,.4);transform:translateX(4px)}
+.feature-item.active{border-color:rgba(124,58,237,.6);background:rgba(124,58,237,.08);transform:translateX(6px)}
+.fi-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:rgba(124,58,237,.15)}
+.fi-text h4{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:5px}
+.fi-text p{color:var(--muted);font-size:.83rem;line-height:1.5}
+.features-preview{background:var(--card);border:1px solid var(--border);border-radius:24px;overflow:hidden;backdrop-filter:blur(16px);min-height:360px;display:flex;flex-direction:column;position:sticky;top:80px}
+.fp-header{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;background:rgba(124,58,237,.06)}
+.fp-dot{width:9px;height:9px;border-radius:50%}
+.fd1{background:#ef4444}.fd2{background:#f59e0b}.fd3{background:#22c55e}
+.fp-title{flex:1;text-align:center;font-size:.78rem;color:var(--muted)}
+.fp-body{padding:20px;flex:1}
+.preview-panel{display:none;animation:fadeIn .3s ease}
+.preview-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* BOOK JOURNEY */
+#book-journey{padding:90px 5%}
+.journey-input-box{max-width:620px;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:26px;backdrop-filter:blur(16px);margin-bottom:32px}
+.journey-input-box label{display:block;font-size:.83rem;color:var(--muted);margin-bottom:9px;font-weight:500}
+.journey-field-row{display:flex;gap:10px}
+.journey-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:50px;padding:12px 18px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+.journey-input:focus{border-color:var(--purple)}
+.journey-input::placeholder{color:var(--muted)}
+.journey-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:50px;padding:12px 22px;color:#fff;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:.86rem;transition:box-shadow .2s;white-space:nowrap}
+.journey-btn:hover{box-shadow:0 0 28px var(--purple-glow)}
+.preset-goals{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.preset-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:5px 13px;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.preset-btn:hover{border-color:var(--purple);color:var(--white);background:var(--purple-glow)}
+.path-display{display:none;flex-wrap:wrap;align-items:center;gap:0;max-width:800px;margin-top:24px}
+.path-display.show{display:flex}
+.path-node{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;flex:1;min-width:106px}
+.path-node .pn-icon{font-size:1.5rem;margin-bottom:5px}
+.path-node .pn-step{font-size:.66rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.path-node .pn-name{font-family:'Sora',sans-serif;font-size:.8rem;font-weight:700}
+.path-arrow{color:var(--purple);font-size:1.3rem;padding:0 4px;flex-shrink:0}
+.book-pills{display:none;flex-wrap:wrap;gap:7px;margin-top:16px;max-width:800px}
+.book-pill{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:50px;padding:6px 13px;font-size:.78rem;font-weight:600;color:#A78BFA}
+/* AI DEMO */
+#ai-demo{padding:90px 5%;text-align:center}
+.demo-container{max-width:680px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:26px;overflow:hidden;backdrop-filter:blur(20px);text-align:left}
+.demo-header{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(124,58,237,.07)}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.d1{background:#ef4444}.d2{background:#f59e0b}.d3{background:#22c55e}
+.demo-title-bar{flex:1;text-align:center;font-size:.78rem;color:var(--muted)}
+.demo-body{padding:20px;max-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(124,58,237,.3) transparent;display:flex;flex-direction:column;gap:14px}
+.chat-msg{display:flex;gap:10px}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.chat-msg.ai .chat-avatar{background:linear-gradient(135deg,#7C3AED,#2563EB)}
+.chat-msg.user .chat-avatar{background:var(--gold-soft);border:1px solid rgba(251,191,36,.3)}
+.chat-bubble{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;padding:11px 14px;font-size:.86rem;line-height:1.6;max-width:78%}
+.chat-msg.user .chat-bubble{background:rgba(124,58,237,.12);border-color:rgba(124,58,237,.3)}
+.typing-dots{display:flex;align-items:center;gap:4px;padding:2px 0}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:typingBounce 1s infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.book-recs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.book-rec-card{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.22);border-radius:11px;padding:11px}
+.br-emoji{font-size:1.3rem;margin-bottom:4px}.br-title{font-size:.78rem;font-weight:700;margin-bottom:2px}.br-reason{font-size:.7rem;color:var(--muted)}
+.demo-input-row{display:flex;gap:9px;padding:11px 18px 14px;border-top:1px solid var(--border)}
+.demo-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:50px;padding:10px 16px;color:var(--white);font-size:.86rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.demo-input:focus{border-color:var(--purple)}
+.demo-input::placeholder{color:var(--muted)}
+.demo-send{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:50px;padding:10px 20px;color:#fff;font-weight:600;font-size:.83rem;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .2s;white-space:nowrap}
+.demo-send:hover{box-shadow:0 0 18px var(--purple-glow)}
+.demo-send:disabled{opacity:.45;cursor:not-allowed}
+.demo-footer{text-align:center;padding:0 18px 13px;font-size:.74rem;color:var(--muted)}
+.demo-footer a{color:var(--purple);text-decoration:none}
+/* LIBRARY */
+#library{padding:90px 5%;text-align:center}
+.category-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
+.cat-tab{background:var(--card);border:1px solid var(--border);border-radius:50px;padding:8px 20px;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.cat-tab:hover{border-color:rgba(124,58,237,.4);color:var(--white)}
+.cat-tab.active{background:linear-gradient(135deg,#7C3AED,#2563EB);border-color:transparent;color:#fff}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;text-align:left}
+.book-card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(10px);transition:transform .3s,box-shadow .3s;display:none}
+.book-card.visible{display:block}
+.book-card:hover{transform:translateY(-6px);box-shadow:0 0 38px var(--purple-glow)}
+.book-cover{height:140px;display:flex;align-items:center;justify-content:center;font-size:3.2rem;position:relative}
+.book-cover .cat-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:3px 10px;font-size:.68rem;font-weight:700;color:var(--white)}
+.bc-si{background:linear-gradient(135deg,#1e1b4b,#312e81)}
+.bc-fi{background:linear-gradient(135deg,#0c1a2e,#0c4a6e)}
+.bc-eb{background:linear-gradient(135deg,#1c1400,#451a03)}
+.bc-sp{background:linear-gradient(135deg,#0f2027,#1a4a2e)}
+.bc-ps{background:linear-gradient(135deg,#1a0533,#3b0764)}
+.book-info{padding:18px}
+.book-info h3{font-family:'Sora',sans-serif;font-size:.93rem;font-weight:700;margin-bottom:3px}
+.book-info .author{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+.lessons-tag{display:inline-flex;align-items:center;gap:4px;background:var(--gold-soft);border:1px solid rgba(251,191,36,.2);border-radius:50px;padding:3px 10px;font-size:.7rem;font-weight:600;color:var(--gold);margin-bottom:10px}
+.book-info .preview-text{font-size:.81rem;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.book-cta{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.read-more-btn{font-size:.78rem;color:#A78BFA;font-weight:600;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;transition:color .2s;padding:0}
+.read-more-btn:hover{color:var(--white)}
+.lock-badge{font-size:.7rem;color:var(--muted)}
+/* DOWNLOAD */
+#download{padding:90px 5%}
+.download-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.dl-features{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+.dl-feature{display:flex;align-items:center;gap:12px}
+.df-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25)}
+.df-text{color:var(--muted);font-size:.88rem;line-height:1.4}
+.df-text strong{color:var(--white);display:block;margin-bottom:2px;font-size:.9rem}
+.app-badges-row{display:flex;gap:14px;flex-wrap:wrap}
+.app-badge-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:14px;padding:13px 22px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--white)}
+.app-badge-btn:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.1);transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.2)}
+.ab-icon{font-size:1.7rem}.ab-sub{font-size:.68rem;color:var(--muted)}.ab-name{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700}
+.phone-mockup{background:linear-gradient(145deg,rgba(124,58,237,.15),rgba(37,99,235,.1));border:1px solid rgba(124,58,237,.3);border-radius:32px;padding:28px;position:relative;overflow:hidden}
+.phone-mockup::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 60%);animation:glowP 4s ease-in-out infinite}
+@keyframes glowP{0%,100%{opacity:.5}50%{opacity:1}}
+.mock-screen{background:rgba(8,11,24,.9);border:1px solid var(--border);border-radius:20px;padding:18px;position:relative;z-index:1}
+.mock-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mock-logo{font-family:'Sora',sans-serif;font-size:.88rem;font-weight:800;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mock-logo span{-webkit-text-fill-color:var(--gold)}
+.mock-notif{background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);border-radius:50px;padding:3px 10px;font-size:.68rem;color:#A78BFA}
+.mock-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mock-stat{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.ms-num{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ms-lbl{font-size:.68rem;color:var(--muted);margin-top:2px}
+.mock-book-row{display:flex;gap:8px;margin-bottom:12px}
+.mock-book{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px;flex:1}
+.mb-em{font-size:1.1rem;margin-bottom:4px}.mb-t{font-weight:600;font-size:.72rem;margin-bottom:2px}.mb-p{color:var(--purple);font-size:.68rem}
+.mock-ai-preview{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:12px;padding:12px}
+.map-label{font-size:.68rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.map-text{font-size:.78rem;color:var(--muted);line-height:1.5}
+.dl-badges-below{display:flex;gap:10px;margin-top:16px;position:relative;z-index:1}
+.dl-badge-mini{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.dl-badge-mini:hover{border-color:var(--purple);background:rgba(124,58,237,.1)}
+.dbm-icon{font-size:1.3rem;margin-bottom:4px}.dbm-label{font-size:.7rem;color:var(--muted)}.dbm-name{font-size:.8rem;font-weight:700}
+.qr-box{text-align:center;margin-top:14px;position:relative;z-index:1}
+.qr-label{font-size:.7rem;color:var(--muted);margin-top:5px}
+/* TESTIMONIALS */
+#stories{padding:90px 5%;background:linear-gradient(180deg,transparent,rgba(124,58,237,.04),transparent)}
+.testimonial-featured{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px}
+.testimonial-card{background:var(--card2);border:1px solid var(--border);border-radius:24px;padding:28px;backdrop-filter:blur(10px);transition:border-color .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+.testimonial-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-4px);box-shadow:0 8px 40px rgba(124,58,237,.15)}
+.testimonial-card.featured{border-color:rgba(124,58,237,.35);background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(37,99,235,.05))}
+.tc-quote-mark{font-size:5rem;line-height:.5;color:rgba(124,58,237,.15);font-family:Georgia,serif;position:absolute;top:18px;right:22px;font-weight:900;pointer-events:none}
+.tc-stars{display:flex;gap:3px;margin-bottom:14px;font-size:1rem}
+.tc-text{font-size:.91rem;line-height:1.75;color:var(--white);margin-bottom:18px;font-style:italic;position:relative;z-index:1}
+.tc-text strong{color:#A78BFA;font-style:normal}
+.tc-divider{height:1px;background:var(--border);margin-bottom:16px}
+.tc-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tc-user{display:flex;align-items:center;gap:12px}
+.tc-avatar-ring{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#2563EB);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tc-avatar-inner{width:40px;height:40px;border-radius:50%;background:var(--void);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.tc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:2px}
+.tc-meta{font-size:.74rem;color:var(--muted)}
+.tc-result{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:50px;padding:5px 13px;font-size:.72rem;font-weight:700;color:#4ade80;white-space:nowrap;flex-shrink:0}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.ba-col{border-radius:11px;padding:11px;background:rgba(0,0,0,.25)}
+.ba-col-before .ba-label-c{color:var(--red)}
+.ba-col-after .ba-label-c{color:var(--green)}
+.ba-label-c{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.ba-item{font-size:.76rem;color:var(--muted);margin-bottom:5px;line-height:1.35;display:flex;gap:5px}
+.testimonials-secondary{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tc-mini{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;backdrop-filter:blur(10px);transition:border-color .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+.tc-mini:hover{border-color:rgba(124,58,237,.35);transform:translateY(-3px);box-shadow:0 6px 28px rgba(124,58,237,.12)}
+.tc-mini .tc-quote-mark{font-size:3.5rem;top:12px;right:16px}
+.tc-mini .tc-text{font-size:.86rem;margin-bottom:14px}
+/* FOUNDER */
+#founder{padding:90px 5%;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.founder-visual{background:var(--card);border:1px solid var(--border);border-radius:26px;padding:40px;text-align:center;position:relative;overflow:hidden}
+.founder-visual::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 60%);animation:glowP 4s ease-in-out infinite}
+.founder-emoji{font-size:4rem;margin-bottom:18px;display:block;position:relative;z-index:1}
+.founder-visual h3{font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;position:relative;z-index:1}
+.founder-visual p{color:var(--muted);font-size:.84rem;margin-top:7px;position:relative;z-index:1}
+.stat-row{display:flex;gap:14px;margin-top:24px;position:relative;z-index:1}
+.stat-box{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:13px;padding:13px}
+.s-num{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.s-label{font-size:.7rem;color:var(--muted);margin-top:2px}
+.founder-text p{color:var(--muted);font-size:.91rem;line-height:1.75;margin-bottom:13px}
+.mission-list{list-style:none;margin-top:20px}
+.mission-list li{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.86rem;color:var(--muted);line-height:1.5}
+.mission-list li:last-child{border-bottom:none}
+/* STORY SECTION */
+#story{padding:100px 5% 80px;position:relative;overflow:hidden}
+#story::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(37,99,235,.05) 0%,transparent 50%);pointer-events:none}
+.story-inner{max-width:860px;position:relative;z-index:1}
+.story-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.7rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--purple);margin-bottom:20px}
+.story-headline{font-family:'Sora',sans-serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:800;line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px}
+.story-headline em{font-style:italic;font-family:Georgia,serif;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-lede{font-size:1.08rem;color:var(--muted);line-height:1.8;max-width:620px;margin-bottom:60px}
+.story-chapters{display:flex;flex-direction:column;gap:0}
+.story-chapter{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:40px 0;border-top:1px solid var(--border);position:relative}
+.story-chapter:last-of-type{border-bottom:1px solid var(--border)}
+.sc-left{display:flex;flex-direction:column;align-items:flex-start;padding-top:4px}
+.sc-num{font-family:'Sora',sans-serif;font-size:3rem;font-weight:800;line-height:1;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(37,99,235,.15));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.sc-tag{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.sc-right h3{font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-.5px;margin-bottom:14px;line-height:1.25}
+.sc-right p{color:var(--muted);font-size:.92rem;line-height:1.8;margin-bottom:12px}
+.sc-right p:last-child{margin-bottom:0}
+.sc-right p strong{color:var(--white);font-weight:600}
+.story-callout{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-left:3px solid var(--purple);border-radius:0 14px 14px 0;padding:18px 20px;margin:18px 0;font-size:.91rem;font-style:italic;color:var(--white);line-height:1.7}
+.story-callout span{display:block;font-size:.72rem;font-style:normal;color:var(--muted);margin-top:8px;letter-spacing:.5px;font-weight:600;text-transform:uppercase}
+.story-scene{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin:18px 0}
+.story-scene .ss-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:10px}
+.story-scene p{font-size:.86rem;color:var(--muted);line-height:1.75;margin:0}
+.story-scene p strong{color:var(--white)}
+.story-moment{display:flex;align-items:flex-start;gap:14px;background:var(--gold-soft);border:1px solid rgba(251,191,36,.25);border-radius:16px;padding:18px 20px;margin:18px 0}
+.story-moment .sm-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.story-moment p{font-size:.9rem;line-height:1.7;color:var(--white);margin:0}
+.story-moment p em{color:var(--gold);font-style:normal;font-weight:700}
+.story-end{background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(37,99,235,.07));border:1px solid rgba(124,58,237,.25);border-radius:24px;padding:40px;text-align:center;margin-top:56px;position:relative;overflow:hidden}
+.story-end::before{content:'';position:absolute;top:-60%;left:-30%;width:160%;height:200%;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 60%);pointer-events:none}
+.story-end h3{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-bottom:12px;position:relative;z-index:1}
+.story-end p{color:var(--muted);font-size:.95rem;line-height:1.75;max-width:540px;margin:0 auto 28px;position:relative;z-index:1}
+.story-end-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:50px;padding:13px 30px;color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .2s,transform .2s;position:relative;z-index:1}
+.story-end-btn:hover{box-shadow:0 0 36px var(--purple-glow);transform:translateY(-2px)}
+.keya-badge{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:8px 18px 8px 8px;margin-bottom:28px}
+.keya-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#FBBF24);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;color:#fff;font-family:'Sora',sans-serif}
+.keya-info{display:flex;flex-direction:column}
+.keya-name{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700}
+.keya-role{font-size:.72rem;color:var(--muted)}
+@media(max-width:640px){.story-chapter{grid-template-columns:1fr;gap:12px}.sc-num{font-size:2rem}}
+/* WAITLIST */
+#waitlist{padding:90px 5%;text-align:center;position:relative;overflow:hidden}
+#waitlist::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.1) 0%,rgba(37,99,235,.05) 40%,transparent 70%);pointer-events:none}
+.count-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:50px;padding:6px 16px;font-size:.78rem;font-weight:600;color:#4ade80;margin-bottom:28px}
+.count-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+.waitlist-form{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:11px}
+.wl-row{display:flex;gap:11px}
+.wl-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:13px;padding:14px 16px;color:var(--white);font-family:'Inter',sans-serif;font-size:.91rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.wl-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-glow)}
+.wl-input::placeholder{color:var(--muted)}
+.wl-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:13px;padding:16px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .3s,transform .2s}
+.wl-btn:hover{box-shadow:0 0 48px var(--purple-glow);transform:translateY(-2px)}
+.wl-note{font-size:.76rem;color:var(--muted)}
+#success-msg{display:none;max-width:480px;margin:0 auto}
+.success-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:18px;padding:32px}
+.s-emoji{font-size:2.8rem;margin-bottom:12px;display:block}
+/* FAQ */
+#faq{padding:70px 5% 90px}
+.faq-grid{max-width:700px;display:flex;flex-direction:column;gap:9px;margin-top:40px}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .3s}
+.faq-item.open{border-color:rgba(124,58,237,.4)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;cursor:pointer;gap:14px;font-family:'Sora',sans-serif;font-size:.9rem;font-weight:600;user-select:none}
+.faq-q:hover{color:#A78BFA}
+.faq-arrow{color:var(--purple);font-size:1rem;transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .3s;color:var(--muted);font-size:.86rem;line-height:1.7;padding:0 20px}
+.faq-item.open .faq-a{max-height:200px;padding:0 20px 16px}
+/* FOOTER */
+footer{padding:52px 5% 32px;border-top:1px solid var(--border);display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;position:relative;z-index:1}
+.ft-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.5px;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;margin-bottom:10px}
+.ft-logo span{-webkit-text-fill-color:var(--gold)}
+.footer-brand p{color:var(--muted);font-size:.83rem;line-height:1.65;max-width:250px}
+.footer-col h4{font-family:'Sora',sans-serif;font-size:.86rem;font-weight:700;margin-bottom:14px}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:.81rem;margin-bottom:9px;transition:color .2s}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{padding:20px 5% 26px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:11px;position:relative;z-index:1}
+.footer-bottom p{color:var(--muted);font-size:.78rem}
+.social-links{display:flex;gap:9px}
+.social-link{width:34px;height:34px;border-radius:9px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.86rem;text-decoration:none;transition:border-color .2s,background .2s;color:var(--white)}
+.social-link:hover{border-color:var(--purple);background:var(--purple-glow)}
+/* AUTH MODAL */
+.auth-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(14px);z-index:600;align-items:center;justify-content:center;padding:20px}
+.auth-overlay.open{display:flex}
+.auth-box{background:#0D1020;border:1px solid var(--border);border-radius:26px;width:100%;max-width:440px;position:relative;animation:slideUp .35s ease;overflow:hidden}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.auth-header{padding:28px 28px 0;text-align:center}
+.auth-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;display:inline-block}
+.auth-logo span{-webkit-text-fill-color:var(--gold)}
+.auth-subtitle{color:var(--muted);font-size:.82rem;margin-top:4px}
+.auth-tabs{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:4px;margin:18px 0 0}
+.auth-tab{flex:1;padding:9px;border-radius:50px;border:none;background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .25s}
+.auth-tab.active{background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff}
+.auth-body{padding:24px 28px 28px}
+.auth-form-panel{display:none;flex-direction:column;gap:13px}
+.auth-form-panel.active{display:flex}
+.auth-field label{display:block;font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px}
+.auth-input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.auth-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
+.auth-input::placeholder{color:var(--muted)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:2px 0}
+.auth-divider span{font-size:.74rem;color:var(--muted);white-space:nowrap}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-social-btns{display:flex;gap:10px}
+.auth-social-btn{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;color:var(--white);transition:all .2s}
+.auth-social-btn:hover{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.08)}
+.auth-submit{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:12px;padding:14px;color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .25s,transform .2s;width:100%}
+.auth-submit:hover{box-shadow:0 0 36px var(--purple-glow);transform:translateY(-1px)}
+.auth-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.auth-footer-text{text-align:center;font-size:.78rem;color:var(--muted)}
+.auth-footer-text a{color:var(--purple);text-decoration:none;font-weight:600;cursor:pointer}
+.auth-close{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--white);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.auth-close:hover{background:rgba(255,255,255,.14)}
+.auth-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;font-size:.82rem;color:#fca5a5;display:none;margin-bottom:2px}
+.auth-error.show{display:block}
+.auth-success-state{text-align:center;padding:24px 0}
+.auth-success-state .as-emoji{font-size:3rem;margin-bottom:12px;display:block}
+.auth-success-state h3{font-family:'Sora',sans-serif;font-weight:800;font-size:1.1rem;margin-bottom:7px;color:#4ade80}
+.auth-success-state p{color:var(--muted);font-size:.86rem}
+/* USER PILL */
+.user-pill{display:none;align-items:center;gap:8px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);border-radius:50px;padding:6px 14px 6px 6px;cursor:pointer;transition:all .2s}
+.user-pill:hover{background:rgba(124,58,237,.2)}
+.up-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#2563EB);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+.up-name{font-size:.82rem;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* CHAPTER MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#0D1020;border:1px solid var(--border);border-radius:22px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-head{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;position:sticky;top:0;background:#0D1020;z-index:1}
+.modal-head h3{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:800}
+.modal-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--white);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.modal-close:hover{background:rgba(255,255,255,.12)}
+.modal-body{padding:22px 26px 26px}
+.modal-author{font-size:.8rem;color:var(--muted);margin-bottom:18px}
+.modal-section-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--purple);margin-bottom:9px;margin-top:20px}
+.modal-chapter-text{font-size:.88rem;color:var(--muted);line-height:1.75}
+.modal-lesson{display:flex;gap:11px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:12px;margin-bottom:9px}
+.ml-num{font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;color:var(--purple);flex-shrink:0;width:22px}
+.ml-text{font-size:.85rem;line-height:1.55}
+.modal-cta{margin-top:22px;background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:12px;padding:13px;width:100%;color:#fff;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .2s}
+.modal-cta:hover{box-shadow:0 0 36px var(--purple-glow)}
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;background:#1A1F35;border:1px solid rgba(124,58,237,.4);border-radius:13px;padding:13px 18px;font-size:.86rem;color:var(--white);z-index:700;transform:translateY(80px);opacity:0;transition:all .35s ease;max-width:310px;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* LIBRARY SEARCH */
+.lib-search-wrap{max-width:400px;margin:0 auto 28px;position:relative}
+.lib-search{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:50px;padding:11px 18px 11px 42px;color:var(--white);font-family:'Inter',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.lib-search:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-glow)}
+.lib-search::placeholder{color:var(--muted)}
+.lib-search-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.95rem;pointer-events:none;line-height:1}
+.lib-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.9rem;display:none}
+
+/* PRICING */
+#pricing{padding:90px 5%;text-align:center}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:760px;margin:0 auto 20px}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:30px;text-align:left;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px)}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 0 36px var(--purple-glow)}
+.price-card.pro{border-color:rgba(124,58,237,.45);background:linear-gradient(135deg,rgba(124,58,237,.09),rgba(37,99,235,.05))}
+.price-pill{display:inline-flex;align-items:center;gap:5px;border-radius:50px;padding:4px 13px;font-size:.69rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:16px}
+.price-pill.free{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green)}
+.price-pill.premium{background:var(--gold-soft);border:1px solid rgba(251,191,36,.3);color:var(--gold)}
+.price-amt{font-family:'Sora',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:5px}
+.price-amt.grad-price{background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.price-per{font-size:.82rem;color:var(--muted);margin-bottom:18px}
+.price-desc{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:22px}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.price-feats li{display:flex;align-items:flex-start;gap:9px;font-size:.84rem;color:var(--muted);line-height:1.45}
+.price-feats li .pf-tick{color:var(--green);font-weight:700;flex-shrink:0;font-size:.9rem}
+.price-feats li .pf-cross{color:var(--muted);flex-shrink:0;font-size:.9rem}
+.price-btn{width:100%;border-radius:13px;padding:13px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;border:1px solid var(--border);background:var(--card);color:var(--white)}
+.price-btn:hover{border-color:var(--purple);background:var(--purple-glow)}
+.price-btn.pro-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border-color:transparent;color:#fff}
+.price-btn.pro-btn:hover{box-shadow:0 0 32px var(--purple-glow);transform:translateY(-1px)}
+.price-note{font-size:.78rem;color:var(--muted);text-align:center}
+
+/* FEEDBACK BUTTON */
+.feedback-btn{position:fixed;right:0;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;background:var(--purple);color:#fff;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;padding:14px 8px;border-radius:8px 0 0 8px;cursor:pointer;z-index:500;border:none;letter-spacing:.5px;transition:background .2s,padding .2s}
+.feedback-btn:hover{background:#6D28D9;padding-left:12px}
+
+/* FEEDBACK MODAL */
+.fb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);z-index:600;align-items:center;justify-content:center;padding:20px}
+.fb-overlay.open{display:flex}
+.fb-box{background:#0D1020;border:1px solid var(--border);border-radius:24px;max-width:460px;width:100%;position:relative;overflow:hidden;animation:slideUp .3s ease}
+.fb-head{padding:26px 28px 0;text-align:center}
+.fb-head h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:6px}
+.fb-head p{color:var(--muted);font-size:.82rem;margin-bottom:4px}
+.fb-body{padding:20px 28px 28px;display:flex;flex-direction:column;gap:13px}
+.fb-stars{display:flex;justify-content:center;gap:10px;margin-bottom:4px}
+.fb-star{font-size:1.8rem;cursor:pointer;transition:transform .15s;filter:grayscale(1);opacity:.4}
+.fb-star.active,.fb-star:hover{filter:none;opacity:1;transform:scale(1.2)}
+.fb-label{font-size:.75rem;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+.fb-opts{display:flex;flex-wrap:wrap;gap:7px}
+.fb-opt{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:5px 13px;font-size:.76rem;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.fb-opt:hover,.fb-opt.sel{border-color:var(--purple);background:var(--purple-glow);color:var(--white)}
+.fb-textarea{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--white);font-family:'Inter',sans-serif;font-size:.87rem;outline:none;resize:vertical;min-height:90px;width:100%;transition:border-color .2s}
+.fb-textarea:focus{border-color:var(--purple)}
+.fb-textarea::placeholder{color:var(--muted)}
+.fb-submit{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:12px;padding:13px;color:#fff;font-size:.93rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .2s}
+.fb-submit:hover{box-shadow:0 0 32px var(--purple-glow)}
+.fb-close{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--white);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.fb-close:hover{background:rgba(255,255,255,.13)}
+.fb-success{text-align:center;padding:36px 28px}
+.fb-success .fs-emoji{font-size:2.8rem;display:block;margin-bottom:12px}
+.fb-success h3{font-family:'Sora',sans-serif;font-weight:800;font-size:1.1rem;margin-bottom:7px;color:var(--green)}
+.fb-success p{color:var(--muted);font-size:.86rem}
+@media(max-width:640px){.pricing-grid{grid-template-columns:1fr}.feedback-btn{display:none}}
+
+/* ── LIGHT MODE overrides ── */
+body.light{
+  --void:#F8F9FC;--card:rgba(0,0,0,0.04);--card2:rgba(0,0,0,0.06);
+  --white:#1E293B;--muted:#64748B;--border:rgba(0,0,0,0.09);
+  --gold-soft:rgba(180,120,0,0.1);
+  background:#F8F9FC;color:#1E293B;
+}
+body.light #bg-canvas{opacity:.1}
+body.light nav{background:rgba(248,249,252,.94)}
+body.light .chat-bubble{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.09)}
+body.light .chat-msg.user .chat-bubble{background:rgba(124,58,237,.1)}
+body.light .auth-box,body.light .modal-box,body.light .fb-box{background:#fff}
+body.light .auth-input,body.light .fb-textarea,body.light .contact-input,
+body.light .lib-search,body.light .wl-input,body.light .demo-input,
+body.light .journey-input{background:rgba(0,0,0,.04);color:#1E293B}
+body.light .mobile-menu{background:rgba(248,249,252,.98)}
+body.light .mobile-menu a{color:#1E293B}
+body.light .toast{background:#fff;color:#1E293B}
+body.light footer,body.light .footer-bottom{background:#F1F5F9}
+body.light .ft-logo,.footer-brand p{color:inherit}
+body.light .demo-header,body.light .fp-header{background:rgba(124,58,237,.06)}
+body.light .mock-screen{background:rgba(248,249,252,.95)}
+body.light .upgrade-box{background:#fff}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--white);font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--purple);background:var(--purple-glow)}
+
+/* ── VIDEO DEMO ── */
+#video-demo{padding:90px 5%;text-align:center}
+.video-wrapper{max-width:780px;margin:0 auto;position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--border);background:#000;box-shadow:0 0 60px rgba(124,58,237,.2)}
+.video-wrapper iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
+.video-placeholder{width:100%;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(37,99,235,.1));cursor:pointer;position:relative;overflow:hidden}
+.video-placeholder::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(124,58,237,.2),transparent 70%)}
+.vp-play{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#2563EB);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:18px;transition:transform .25s,box-shadow .25s;position:relative;z-index:1}
+.vp-play:hover{transform:scale(1.1);box-shadow:0 0 40px var(--purple-glow)}
+.video-placeholder h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:7px;position:relative;z-index:1}
+.video-placeholder p{color:var(--muted);font-size:.86rem;position:relative;z-index:1}
+.vp-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid rgba(251,191,36,.3);border-radius:50px;padding:5px 14px;font-size:.73rem;font-weight:700;color:var(--gold);margin-top:14px;position:relative;z-index:1}
+
+/* ── REFERRAL ── */
+.referral-box{background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(37,99,235,.08));border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:28px;max-width:480px;margin:28px auto 0;text-align:center}
+.ref-title{font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;margin-bottom:7px}
+.ref-desc{color:var(--muted);font-size:.84rem;line-height:1.6;margin-bottom:18px}
+.ref-reward{display:inline-flex;align-items:center;gap:7px;background:var(--gold-soft);border:1px solid rgba(251,191,36,.25);border-radius:50px;padding:5px 14px;font-size:.76rem;font-weight:700;color:var(--gold);margin-bottom:18px}
+.ref-link-row{display:flex;gap:8px}
+.ref-link-input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:11px;padding:11px 14px;color:var(--white);font-family:'Inter',sans-serif;font-size:.82rem;outline:none}
+body.light .ref-link-input{background:rgba(0,0,0,.04);color:#1E293B}
+.ref-copy-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:11px;padding:11px 18px;color:#fff;font-weight:700;font-size:.82rem;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:box-shadow .2s}
+.ref-copy-btn:hover{box-shadow:0 0 22px var(--purple-glow)}
+.ref-share-row{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.ref-share-btn{background:var(--card);border:1px solid var(--border);border-radius:50px;padding:6px 16px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:var(--white);transition:all .2s}
+.ref-share-btn:hover{border-color:var(--purple);background:var(--purple-glow)}
+.ref-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.ref-step{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 10px;text-align:center}
+.ref-step .rs-num{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+.ref-step .rs-txt{font-size:.74rem;color:var(--muted);line-height:1.4}
+@media(max-width:640px){.ref-link-row{flex-direction:column}.ref-steps{grid-template-columns:1fr}}
+
+
+/* COMING SOON BADGE */
+.cs-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:50px;padding:4px 12px;font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase}
+.cs-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 1.5s infinite}
+.cs-overlay-btn{position:relative}
+.cs-overlay-btn::after{content:'Coming Soon';position:absolute;inset:0;background:rgba(8,11,24,.82);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;backdrop-filter:blur(2px);cursor:default}
+/* VIDEO COMING SOON */
+.vid-cs{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(37,99,235,.08));display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:22px;border:1px solid rgba(124,58,237,.2);text-align:center;padding:40px}
+.vid-cs-icon{font-size:3rem;margin-bottom:16px}
+.vid-cs-title{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:8px}
+.vid-cs-sub{color:var(--muted);font-size:.86rem;line-height:1.65;max-width:420px;margin-bottom:20px}
+.vid-cs-link{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:50px;padding:11px 26px;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-block;transition:box-shadow .2s}
+.vid-cs-link:hover{box-shadow:0 0 28px var(--purple-glow)}
+/* APP DOWNLOAD COMING SOON */
+.app-badge-btn.cs-app{position:relative;overflow:hidden}
+.app-badge-btn.cs-app .cs-ribbon{position:absolute;top:8px;right:-18px;background:var(--gold);color:#080B18;font-size:.58rem;font-weight:800;padding:2px 20px;transform:rotate(35deg);letter-spacing:.5px;text-transform:uppercase}
+/* POLISH — nav active state */
+nav ul a.nav-active{color:var(--white)!important}
+/* PRESENTATION BANNER */
+.pres-banner{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(37,99,235,.1));border-bottom:1px solid rgba(124,58,237,.25);padding:8px 5%;display:flex;align-items:center;justify-content:center;gap:10px;font-size:.78rem;text-align:center;flex-wrap:wrap}
+.pres-banner strong{color:var(--gold)}
+.pres-banner a{color:#A78BFA;text-decoration:none;font-weight:600}
+.pres-banner a:hover{color:var(--white)}
+
+/* SCROLL ANIM */
+.sc-a{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.sc-a.visible{opacity:1;transform:translateY(0)}
+/* RESPONSIVE */
+@media(max-width:900px){
+  #founder,.features-layout,.download-layout{grid-template-columns:1fr;gap:32px}
+  .features-preview{position:static}
+  .testimonial-featured{grid-template-columns:1fr}
+  .testimonials-secondary{grid-template-columns:1fr 1fr}
+  footer{grid-template-columns:1fr 1fr}
+  .footer-brand{grid-column:1/-1}
+}
+@media(max-width:640px){
+  nav ul,.nav-cta,.nav-login-btn{display:none}
+  .hamburger{display:flex}
+  .j-conn,.eco-conn{display:none}
+  .journey-path,.ecosystem-row{gap:9px}
+  .journey-field-row,.wl-row{flex-direction:column}
+  footer{grid-template-columns:1fr}
+  h1.hero-title{letter-spacing:-1px}
+  .sp-div{display:none}
+  .testimonials-secondary{grid-template-columns:1fr}
+  .auth-social-btns{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+</style>
+</head>
+<body>
+
+<div class="pres-banner">
+  <span class="cs-badge"><span class="cs-dot"></span>Beta</span>
+  <span>BookVyrse is in active development — <strong>app launching July 2025.</strong> <a href="#waitlist">Join 9,847+ students on the waitlist →</a></span>
+</div>
+<div id="scroll-bar"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- ═══ AUTH MODAL ═══ -->
+<div class="auth-overlay" id="auth-modal" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-header">
+      <div class="auth-logo">Book<span>Vyrse</span></div>
+      <p class="auth-subtitle" id="auth-subtitle">Welcome back! Continue your learning journey.</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+      </div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-error" id="auth-error"></div>
+      <!-- LOGIN -->
+      <div class="auth-form-panel active" id="panel-login">
+        <div class="auth-field"><label>Email</label><input class="auth-input" id="li-email" type="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="auth-field"><label>Password</label><input class="auth-input" id="li-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="auth-submit" onclick="doLogin()" id="li-btn">Sign In to BookVyrse →</button>
+        <div class="auth-divider"><span>or continue with</span></div>
+        <div class="auth-social-btns">
+          <button class="auth-social-btn" onclick="socialAuth('Google')">🇬 Google</button>
+          <button class="auth-social-btn" onclick="socialAuth('Apple')">🍎 Apple</button>
+        </div>
+        <p class="auth-footer-text">No account? <a onclick="switchTab('signup')">Create one free →</a></p>
+        <p class="auth-footer-text" style="margin-top:6px"><a onclick="showToast('📧 Password reset sent!');closeAuth()" style="color:var(--muted);font-size:.75rem">Forgot password?</a></p>
+      </div>
+      <!-- SIGNUP -->
+      <div class="auth-form-panel" id="panel-signup">
+        <div class="auth-field"><label>Full Name</label><input class="auth-input" id="su-name" type="text" placeholder="Your full name"></div>
+        <div class="auth-field"><label>Email</label><input class="auth-input" id="su-email" type="email" placeholder="you@example.com"></div>
+        <div class="auth-field"><label>Password</label><input class="auth-input" id="su-pass" type="password" placeholder="Min 8 characters"></div>
+        <div class="auth-field"><label>School / College</label><input class="auth-input" id="su-school" type="text" placeholder="Where do you study?"></div>
+        <button class="auth-submit" onclick="doSignup()" id="su-btn">Create My Account →</button>
+        <div class="auth-divider"><span>or continue with</span></div>
+        <div class="auth-social-btns">
+          <button class="auth-social-btn" onclick="socialAuth('Google')">🇬 Google</button>
+          <button class="auth-social-btn" onclick="socialAuth('Apple')">🍎 Apple</button>
+        </div>
+        <p class="auth-footer-text">Have an account? <a onclick="switchTab('login')">Sign in →</a></p>
+      </div>
+      <!-- SUCCESS -->
+      <div id="auth-success" style="display:none">
+        <div class="auth-success-state">
+          <span class="as-emoji">🎉</span>
+          <h3 id="auth-s-title">Welcome!</h3>
+          <p id="auth-s-msg">Your journey starts now.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHAPTER MODAL ═══ -->
+<div class="modal-overlay" id="chapter-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><h3 id="modal-title"></h3><div class="modal-author" id="modal-author"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<!-- FEEDBACK BUTTON -->
+<button class="feedback-btn" onclick="openFeedback()" aria-label="Give feedback">Feedback</button>
+
+<!-- FEEDBACK MODAL -->
+<div class="fb-overlay" id="fb-modal" onclick="if(event.target===this)closeFeedback()">
+  <div class="fb-box">
+    <button class="fb-close" onclick="closeFeedback()">✕</button>
+    <div id="fb-form-state">
+      <div class="fb-head">
+        <h3>Share your feedback 💬</h3>
+        <p>Takes 30 seconds. Helps us build better.</p>
+      </div>
+      <div class="fb-body">
+        <div>
+          <div class="fb-label">How would you rate BookVyrse?</div>
+          <div class="fb-stars" id="fb-stars">
+            <span class="fb-star" onclick="setRating(1)">⭐</span>
+            <span class="fb-star" onclick="setRating(2)">⭐</span>
+            <span class="fb-star" onclick="setRating(3)">⭐</span>
+            <span class="fb-star" onclick="setRating(4)">⭐</span>
+            <span class="fb-star" onclick="setRating(5)">⭐</span>
+          </div>
+        </div>
+        <div>
+          <div class="fb-label">What brought you here?</div>
+          <div class="fb-opts" id="fb-opts">
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Self-improvement</span>
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Career clarity</span>
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Money & finance</span>
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Starting a business</span>
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Study & focus</span>
+            <span class="fb-opt" onclick="toggleFbOpt(this)">Just exploring</span>
+          </div>
+        </div>
+        <div>
+          <div class="fb-label">Anything else to tell us?</div>
+          <textarea class="fb-textarea" id="fb-text" placeholder="What do you love? What's missing? We read everything…"></textarea>
+        </div>
+        <button class="fb-submit" onclick="submitFeedback()">Send Feedback →</button>
+      </div>
+    </div>
+    <div class="fb-success" id="fb-success-state" style="display:none">
+      <span class="fs-emoji">🙏</span>
+      <h3>Thank you so much!</h3>
+      <p>Your feedback genuinely helps us build BookVyrse better. We read every single response.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#how-it-works" onclick="closeMob()">How It Works</a>
+  <a href="#ai-demo" onclick="closeMob()">Try AI Free</a>
+  <a href="#library" onclick="closeMob()">Library</a>
+  <a href="#download" onclick="closeMob()">Download App</a>
+  <a href="#video-demo" onclick="closeMob()">▶ Watch Demo</a>
+  <a href="#stories" onclick="closeMob()">Stories</a>
+  <a href="#" onclick="closeMob();openAuth('login');return false">🔐 Sign In</a>
+  <a href="#pricing" onclick="closeMob()">💰 Pricing</a>
+  <a href="#waitlist" onclick="closeMob()">🚀 Get Early Access</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo" onclick="scrollTo({top:0,behavior:'smooth'})">Book<span>Vyrse</span></div>
+  <ul>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#ai-demo">Try AI</a></li>
+    <li><a href="#library">Library</a></li>
+    <li><a href="#download">Download <span style="font-size:.6rem;background:rgba(251,191,36,.15);color:var(--gold);padding:1px 6px;border-radius:50px;font-weight:700;vertical-align:middle">July</span></a></li><li><a href="#pricing">Pricing</a></li>
+    <li><a href="#video-demo">Demo</a></li><li><a href="#stories">Stories</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-login-btn" id="nav-login-btn" onclick="openAuth('login')">Sign In</button>
+    <div class="user-pill" id="user-pill" onclick="showToast('👤 Full profile available in the app!')">
+      <div class="up-avatar" id="up-av">?</div>
+      <span class="up-name" id="up-nm">User</span>
+    </div>
+    <a href="#waitlist" class="nav-cta" id="nav-cta">🚀 Early Access</a>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+    <div class="hamburger" id="ham" onclick="toggleMob()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-badge"><span class="pulse-dot"></span>AI-Powered Reading Revolution · Now in Beta</div>
+  <h1 class="hero-title">Books are powerful.<br><span class="grad">Understanding them</span><br>changes everything.</h1>
+  <p class="hero-sub">BookVyrse turns any book into a personalised AI-guided journey — with smart lessons, real challenges, and measurable progress for every student.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">🚀 Start Your Journey</button>
+    <button class="btn-secondary" onclick="document.getElementById('ai-demo').scrollIntoView({behavior:'smooth'})">✨ Try AI Demo Free</button>
+  </div>
+  <div class="journey-path">
+    <div class="j-node"><div class="icon">🎯</div><div class="lbl">Step 1</div><div class="ttl">Set Your Goal</div></div>
+    <div class="j-conn"></div>
+    <div class="j-node"><div class="icon">📖</div><div class="lbl">Step 2</div><div class="ttl">Curated Books</div></div>
+    <div class="j-conn"></div>
+    <div class="j-node"><div class="icon">🤖</div><div class="lbl">Step 3</div><div class="ttl">AI Mentor</div></div>
+    <div class="j-conn"></div>
+    <div class="j-node"><div class="icon">🧠</div><div class="lbl">Step 4</div><div class="ttl">Apply &amp; Challenge</div></div>
+    <div class="j-conn"></div>
+    <div class="j-node"><div class="icon">🏆</div><div class="lbl">Step 5</div><div class="ttl">Track Growth</div></div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-proof-strip">
+  <div class="sp-item"><div class="sp-num" id="ctr-s">0</div><div class="sp-label">Students<br>on waitlist</div></div>
+  <div class="sp-div"></div>
+  <div class="sp-item"><div class="sp-num" id="ctr-b">0</div><div class="sp-label">Books<br>curated</div></div>
+  <div class="sp-div"></div>
+  <div class="sp-item"><div class="sp-num" id="ctr-f">0%</div><div class="sp-label">Free to<br>get started</div></div>
+  <div class="sp-div"></div>
+  <div class="sp-item"><div class="sp-num">24/7</div><div class="sp-label">AI mentor<br>availability</div></div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-wrapper" id="mq"></div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem" style="padding:90px 5%">
+  <span class="section-tag">The Problem</span>
+  <h2 class="section-title">Students don't lack books.<br>They lack guidance, direction, and understanding.</h2>
+  <p class="section-sub">Every student has PDFs, summaries, and YouTube. Yet most still feel lost. The issue was never the books.</p>
+  <div class="problem-grid">
+    <div class="problem-card sc-a"><div class="p-icon">😵</div><h3>Overwhelmed by Information</h3><p>Thousands of books, no guidance. Students waste hours reading the wrong things for where they are in life.</p></div>
+    <div class="problem-card sc-a"><div class="p-icon">📉</div><h3>Can't Finish What They Start</h3><p>Over 70% of students abandon books by chapter two. Without structure, motivation fades fast.</p></div>
+    <div class="problem-card sc-a"><div class="p-icon">💭</div><h3>Read But Don't Remember</h3><p>Passive reading doesn't create change. Students forget the lessons within days of finishing a book.</p></div>
+    <div class="problem-card sc-a"><div class="p-icon">🗺️</div><h3>No Clear Direction</h3><p>Career confusion, self-doubt, decision paralysis — students need a mentor, not another bestseller list.</p></div>
+  </div>
+  <div class="ecosystem-row" style="margin-top:64px">
+    <div class="eco-item e1"><div class="eco-icon-box">📚</div><div class="eco-label">Learn</div></div>
+    <div class="eco-conn"></div>
+    <div class="eco-item e2"><div class="eco-icon-box">🤖</div><div class="eco-label">Ask AI</div></div>
+    <div class="eco-conn"></div>
+    <div class="eco-item e3"><div class="eco-icon-box">🎯</div><div class="eco-label">Apply</div></div>
+    <div class="eco-conn"></div>
+    <div class="eco-item e4"><div class="eco-icon-box">🏆</div><div class="eco-label">Grow</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <span class="section-tag" style="padding:0 5%">The Process</span>
+  <h2 class="section-title" style="padding:0 5%">From confusion to clarity<br>in four steps</h2>
+  <p class="section-sub" style="padding:0 5%">BookVyrse isn't just a reading app — it's a structured system guiding you from goal to growth.</p>
+  <div class="steps-grid" style="padding:0 5%">
+    <div class="step-card sc-a" data-step="01"><div class="step-icon-wrap si-1">🎯</div><h3>Tell Us Your Goal</h3><p>Type what you want — confidence, career clarity, better habits, or financial freedom. AI understands your context and builds your path.</p></div>
+    <div class="step-card sc-a" data-step="02"><div class="step-icon-wrap si-2">📖</div><h3>Get Your Book Path</h3><p>Receive a curated reading sequence matched to your goal, age, and experience level. No more guessing what to read next.</p></div>
+    <div class="step-card sc-a" data-step="03"><div class="step-icon-wrap si-3">🤖</div><h3>Learn With AI</h3><p>Ask questions about any chapter. Get personalised summaries, key lessons, and explanations tailored to you. Your AI mentor never sleeps.</p></div>
+    <div class="step-card sc-a" data-step="04"><div class="step-icon-wrap si-4">🏆</div><h3>Apply &amp; Grow</h3><p>Complete real-world challenges after each book. Track streaks, measure progress, and see yourself actually change.</p></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div style="padding:90px 5%">
+    <span class="section-tag">Features</span>
+    <h2 class="section-title">Everything you need<br>to read smarter</h2>
+    <div class="features-layout">
+      <div class="features-list">
+        <div class="feature-item active" onclick="showFeat(this,'pv1')"><div class="fi-icon">🤖</div><div class="fi-text"><h4>AI Book Mentor</h4><p>Ask anything about any book — personalised answers, summaries and insights in seconds.</p></div></div>
+        <div class="feature-item" onclick="showFeat(this,'pv2')"><div class="fi-icon">🗺️</div><div class="fi-text"><h4>Personalised Learning Paths</h4><p>Your goal becomes a roadmap. A curated reading sequence built just for you.</p></div></div>
+        <div class="feature-item" onclick="showFeat(this,'pv3')"><div class="fi-icon">🧠</div><div class="fi-text"><h4>Active Learning Challenges</h4><p>Real-world exercises after each chapter to lock in learning and build new habits.</p></div></div>
+        <div class="feature-item" onclick="showFeat(this,'pv4')"><div class="fi-icon">📊</div><div class="fi-text"><h4>Progress Tracking</h4><p>Streaks, milestones, and growth metrics that show exactly how far you've come.</p></div></div>
+      </div>
+      <div class="features-preview">
+        <div class="fp-header"><span class="fp-dot fd1"></span><span class="fp-dot fd2"></span><span class="fp-dot fd3"></span><span class="fp-title">BookVyrse App Preview</span></div>
+        <div class="fp-body">
+          <div class="preview-panel active" id="pv1"><div style="display:flex;flex-direction:column;gap:11px"><div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:13px;padding:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px">You asked</div><div style="font-size:.86rem">"What's the core idea of Atomic Habits?"</div></div><div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:13px;padding:14px"><div style="font-size:.72rem;color:var(--purple);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:1px">🤖 BookVyrse AI</div><div style="font-size:.86rem;color:var(--muted);line-height:1.65">Small habits, done consistently, compound into extraordinary results. Decide who you want to become, then prove it with tiny daily wins. ✨</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button onclick="showToast('📖 Next chapter in the full app!')" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:50px;padding:5px 12px;font-size:.73rem;color:var(--muted);cursor:pointer;font-family:inherit">📖 Next chapter →</button><button onclick="showFeat(document.querySelectorAll('.feature-item')[2],'pv3')" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:50px;padding:5px 12px;font-size:.73rem;color:var(--muted);cursor:pointer;font-family:inherit">🎯 Daily challenge →</button></div></div></div>
+          <div class="preview-panel" id="pv2"><div style="display:flex;flex-direction:column;gap:9px"><div style="font-size:.78rem;color:var(--muted);margin-bottom:3px">Your path: <strong style="color:var(--white)">Build Confidence</strong></div><div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:11px;padding:12px;display:flex;align-items:center;gap:11px"><span>✅</span><div><div style="font-size:.83rem;font-weight:600">Think Like a Monk</div><div style="font-size:.72rem;color:var(--muted)">Completed · 3 lessons applied</div></div></div><div style="background:rgba(124,58,237,.08);border:1px solid var(--purple);border-radius:11px;padding:12px;display:flex;align-items:center;gap:11px"><span>📖</span><div><div style="font-size:.83rem;font-weight:600">The Mountain Is You</div><div style="font-size:.72rem;color:var(--purple)">In progress · Chapter 4</div></div></div><div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;padding:12px;display:flex;align-items:center;gap:11px;opacity:.5"><span>🔒</span><div><div style="font-size:.83rem;font-weight:600">Atomic Habits</div><div style="font-size:.72rem;color:var(--muted)">Unlock after book 2</div></div></div></div></div>
+          <div class="preview-panel" id="pv3"><div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:14px;padding:18px"><div style="font-size:.72rem;color:var(--gold);font-weight:700;margin-bottom:9px;text-transform:uppercase;letter-spacing:1px">🎯 Today's Challenge</div><div style="font-size:.9rem;font-weight:700;margin-bottom:7px">The 2-Minute Rule</div><div style="font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:15px">Based on Atomic Habits Ch.3: Identify one habit you've been avoiding. Do just 2 minutes of it right now. Come back and mark complete.</div><div style="display:flex;gap:7px"><button id="ch-btn" onclick="markComplete()" style="flex:1;background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:9px;padding:9px;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem">✅ Mark Complete</button><button onclick="showToast('📅 Saved for tomorrow!')" style="background:transparent;border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--muted);cursor:pointer;font-family:inherit;font-size:.8rem">Tomorrow</button></div></div></div>
+          <div class="preview-panel" id="pv4"><div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-family:Sora,sans-serif;font-size:1.15rem;font-weight:800" id="streak-d">🔥 14 Day Streak</div><div style="font-size:.77rem;color:var(--muted)">Your best yet!</div></div><div style="text-align:right"><div style="font-size:1.2rem;font-weight:800;color:var(--gold)">Level 5</div><div style="font-size:.72rem;color:var(--muted)">Avid Reader</div></div></div><div style="background:rgba(255,255,255,.04);border-radius:10px;padding:3px"><div id="xp-bar" style="height:7px;background:linear-gradient(90deg,#7C3AED,#2563EB);border-radius:7px;width:68%;transition:width .8s"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:11px;padding:12px;text-align:center"><div id="b-cnt" style="font-size:1.3rem;font-weight:800;color:#A78BFA">6</div><div style="font-size:.72rem;color:var(--muted)">Books read</div></div><div style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:11px;padding:12px;text-align:center"><div id="c-cnt" style="font-size:1.3rem;font-weight:800;color:#60A5FA">24</div><div style="font-size:.72rem;color:var(--muted)">Challenges done</div></div></div><button onclick="addStreak()" style="background:transparent;border:1px solid rgba(124,58,237,.4);border-radius:9px;padding:8px;color:#A78BFA;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600">+ Log today's reading session</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK JOURNEY -->
+<section id="book-journey">
+  <div style="padding:90px 5%">
+    <span class="section-tag">Book Journey</span>
+    <h2 class="section-title">Build your personalised<br>reading path</h2>
+    <p class="section-sub">Tell us your goal and BookVyrse maps your entire reading journey.</p>
+    <div class="journey-input-box">
+      <label>What do you want to improve or learn?</label>
+      <div class="journey-field-row">
+        <input class="journey-input" id="j-inp" placeholder="e.g. I want to build confidence and stop procrastinating…" maxlength="120">
+        <button class="journey-btn" onclick="generatePath()">Build My Path →</button>
+      </div>
+      <div class="preset-goals">
+        <button class="preset-btn" onclick="setGoal('I want to build confidence')">💪 Confidence</button>
+        <button class="preset-btn" onclick="setGoal('I am confused about my career')">🧭 Career</button>
+        <button class="preset-btn" onclick="setGoal('I want better focus and habits')">🎯 Focus</button>
+        <button class="preset-btn" onclick="setGoal('I want to learn about money and investing')">💰 Money</button>
+        <button class="preset-btn" onclick="setGoal('I want to start my own business')">🚀 Business</button>
+        <button class="preset-btn" onclick="setGoal('I want to reduce stress and anxiety')">🧘 Stress</button>
+      </div>
+    </div>
+    <div class="path-display" id="path-display">
+      <div class="path-node"><div class="pn-icon">🎯</div><div class="pn-step">Goal</div><div class="pn-name" id="pn-goal">—</div></div>
+      <div class="path-arrow">→</div>
+      <div class="path-node"><div class="pn-icon">📖</div><div class="pn-step">Start with</div><div class="pn-name" id="pn-book">—</div></div>
+      <div class="path-arrow">→</div>
+      <div class="path-node"><div class="pn-icon">🎓</div><div class="pn-step">Key focus</div><div class="pn-name" id="pn-focus">—</div></div>
+      <div class="path-arrow">→</div>
+      <div class="path-node"><div class="pn-icon">🧠</div><div class="pn-step">Challenge</div><div class="pn-name" id="pn-chal">—</div></div>
+      <div class="path-arrow">→</div>
+      <div class="path-node"><div class="pn-icon">🏆</div><div class="pn-step">Growth</div><div class="pn-name" id="pn-grow">—</div></div>
+    </div>
+    <div id="path-pills" class="book-pills"></div>
+  </div>
+</section>
+
+<!-- AI DEMO -->
+<section id="ai-demo">
+  <span class="section-tag" style="display:block;text-align:center">Live AI Demo</span>
+  <h2 class="section-title" style="text-align:center;margin:0 auto 14px">Your Personal Book Mentor</h2>
+  <p class="section-sub" style="text-align:center;margin:0 auto 36px">Ask about any book or your learning goals. Powered by real AI.</p>
+  <div class="demo-container">
+    <div class="demo-header"><span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span><span class="demo-title-bar">🤖 BookVyrse AI — Live Book Mentor</span></div>
+    <div class="demo-body" id="chat-body">
+      <div class="chat-msg ai"><div class="chat-avatar">🤖</div><div class="chat-bubble">Hello! I'm your BookVyrse AI mentor. Ask me about any of our 25 books, your learning goals, or what you should read next. ✨</div></div>
+      <div class="chat-msg user"><div class="chat-avatar">🎓</div><div class="chat-bubble">I am 17 and confused about what to do with my life</div></div>
+      <div class="chat-msg ai"><div class="chat-avatar">🤖</div><div class="chat-bubble">That's actually the best time to figure this out! Start with these 4 books:<div class="book-recs"><div class="book-rec-card"><div class="br-emoji">🧘</div><div class="br-title">Think Like a Monk</div><div class="br-reason">Find your purpose with clarity</div></div><div class="book-rec-card"><div class="br-emoji">🎯</div><div class="br-title">Deep Work</div><div class="br-reason">Build skills that make you stand out</div></div><div class="book-rec-card"><div class="br-emoji">⚛️</div><div class="br-title">Atomic Habits</div><div class="br-reason">Build the identity you want</div></div><div class="book-rec-card"><div class="br-emoji">🏔️</div><div class="br-title">The Mountain Is You</div><div class="br-reason">Overcome self-doubt permanently</div></div></div></div></div>
+    </div>
+    <div class="demo-input-row">
+      <input class="demo-input" id="demo-inp" placeholder="Ask about any book or learning goal…" maxlength="300" onkeydown="if(event.key==='Enter')sendAI()">
+      <button class="demo-send" id="demo-btn" onclick="sendAI()">Ask →</button>
+    </div>
+    <div class="demo-footer" id="demo-ft">Powered by BookVyrse AI · <strong id="q-left" style="color:var(--gold)">5</strong> free questions · <a href="#waitlist">Unlock unlimited →</a></div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section id="library">
+  <span class="section-tag" style="display:block">Library</span>
+  <h2 class="section-title" style="margin:0 auto 12px;text-align:center">25 Books. 5 Categories.<br>All curated for students.</h2>
+  <p class="section-sub" style="margin:0 auto 28px;text-align:center">The exact same books available in the BookVyrse app — preview the first chapter and 3 key lessons free.</p>
+  <div class="lib-search-wrap">
+    <span class="lib-search-ico">🔍</span>
+    <input class="lib-search" id="lib-search" type="text" placeholder="Search books or authors…" oninput="libSearch(this.value)" aria-label="Search books">
+  </div>
+  <div class="lib-empty" id="lib-empty">No books match that search. Try a different title or author name.</div>
+  <div class="category-tabs" id="cat-tabs">
+    <button class="cat-tab active" onclick="filterBooks('all',this)">📚 All Books</button>
+    <button class="cat-tab" onclick="filterBooks('si',this)">💪 Self-Improvement</button>
+    <button class="cat-tab" onclick="filterBooks('fi',this)">💰 Finance &amp; Money</button>
+    <button class="cat-tab" onclick="filterBooks('eb',this)">🚀 Entrepreneurship</button>
+    <button class="cat-tab" onclick="filterBooks('sp',this)">🎯 Students &amp; Productivity</button>
+    <button class="cat-tab" onclick="filterBooks('ps',this)">🧠 Psychology</button>
+  </div>
+  <div class="books-grid" id="books-grid"></div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="download-layout">
+    <div class="download-left">
+      <span class="section-tag">Download the App</span>
+      <h2 class="section-title">App launching<br><span style="background:linear-gradient(135deg,#A78BFA,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent">July 2025.</span></h2>
+      <p class="section-sub">The BookVyrse app is in active development and launching July 2025. Join the waitlist now — early members get 50% off Premium for life and first access.</p>
+      <div class="dl-features">
+        <div class="dl-feature sc-a"><div class="df-icon">🤖</div><div class="df-text"><strong>Unlimited AI Conversations</strong>Ask about any book, any time — no question limits in the app.</div></div>
+        <div class="dl-feature sc-a"><div class="df-icon">📱</div><div class="df-text"><strong>Offline Reading Mode</strong>Download books and read anywhere — no internet required.</div></div>
+        <div class="dl-feature sc-a"><div class="df-icon">🔥</div><div class="df-text"><strong>Daily Streaks &amp; Challenges</strong>Build a reading habit that actually sticks with daily accountability.</div></div>
+        <div class="dl-feature sc-a"><div class="df-icon">🏆</div><div class="df-text"><strong>Full Progress Dashboard</strong>Track every book, lesson, and challenge you've completed.</div></div>
+      </div>
+      <div class="app-badges-row">
+        <a class="app-badge-btn cs-app" href="#" onclick="dlClick('ios');return false"><span class="cs-ribbon">July 2025</span>
+          <span class="ab-icon">🍎</span><div><div class="ab-sub">Download on the</div><div class="ab-name">App Store</div></div>
+        </a>
+        <a class="app-badge-btn cs-app" href="#" onclick="dlClick('android');return false"><span class="cs-ribbon">July 2025</span>
+          <span class="ab-icon">▶</span><div><div class="ab-sub">Get it on</div><div class="ab-name">Google Play</div></div>
+        </a>
+      </div>
+    </div>
+    <div class="download-right">
+      <div class="phone-mockup">
+        <div class="mock-screen">
+          <div class="mock-header">
+            <div class="mock-logo">Book<span>Vyrse</span></div>
+            <div class="mock-notif">🔥 14 day streak!</div>
+          </div>
+          <div class="mock-stats">
+            <div class="mock-stat"><div class="ms-num">6</div><div class="ms-lbl">Books read</div></div>
+            <div class="mock-stat"><div class="ms-num">24</div><div class="ms-lbl">Challenges done</div></div>
+          </div>
+          <div class="mock-book-row">
+            <div class="mock-book"><div class="mb-em">⚛️</div><div class="mb-t">Atomic Habits</div><div class="mb-p">68% complete</div></div>
+            <div class="mock-book"><div class="mb-em">💰</div><div class="mb-t">Rich Dad Poor Dad</div><div class="mb-p">Next up →</div></div>
+          </div>
+          <div class="mock-ai-preview">
+            <div class="map-label">🤖 AI Mentor</div>
+            <div class="map-text">"Your next lesson: The 1% rule. Want me to show how it applies to your study schedule?"</div>
+          </div>
+        </div>
+        <div class="dl-badges-below">
+          <div class="dl-badge-mini" onclick="dlClick('ios')" style="position:relative"><div class="dbm-icon">🍎</div><div class="dbm-label">Coming</div><div class="dbm-name">July 2025</div></div>
+          <div class="dl-badge-mini" onclick="dlClick('android')" style="position:relative"><div class="dbm-icon">▶</div><div class="dbm-label">Coming</div><div class="dbm-name">July 2025</div></div>
+        </div>
+        <div class="qr-box">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px">
+            <rect width="80" height="80" fill="white"/>
+            <rect x="5" y="5" width="26" height="26" rx="2" fill="#080B18"/><rect x="9" y="9" width="18" height="18" fill="white"/><rect x="12" y="12" width="12" height="12" fill="#080B18"/>
+            <rect x="49" y="5" width="26" height="26" rx="2" fill="#080B18"/><rect x="53" y="9" width="18" height="18" fill="white"/><rect x="56" y="12" width="12" height="12" fill="#080B18"/>
+            <rect x="5" y="49" width="26" height="26" rx="2" fill="#080B18"/><rect x="9" y="53" width="18" height="18" fill="white"/><rect x="12" y="56" width="12" height="12" fill="#080B18"/>
+            <rect x="37" y="37" width="6" height="6" fill="#7C3AED"/><rect x="46" y="37" width="6" height="6" fill="#7C3AED"/><rect x="55" y="37" width="6" height="6" fill="#2563EB"/><rect x="64" y="37" width="6" height="6" fill="#7C3AED"/>
+            <rect x="37" y="46" width="6" height="6" fill="#2563EB"/><rect x="55" y="46" width="6" height="6" fill="#7C3AED"/><rect x="37" y="55" width="6" height="6" fill="#7C3AED"/><rect x="46" y="55" width="6" height="6" fill="#2563EB"/><rect x="64" y="55" width="6" height="6" fill="#7C3AED"/>
+            <rect x="37" y="64" width="6" height="6" fill="#7C3AED"/><rect x="55" y="64" width="6" height="6" fill="#2563EB"/><rect x="64" y="64" width="6" height="6" fill="#7C3AED"/>
+          </svg>
+          <div class="qr-label">Scan to join the waitlist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- VIDEO DEMO -->
+<section id="video-demo">
+  <span class="section-tag" style="display:block;text-align:center">See It In Action</span>
+  <h2 class="section-title" style="text-align:center;margin:0 auto 14px">Watch BookVyrse work its magic</h2>
+  <p class="section-sub" style="text-align:center;margin:0 auto 36px">See exactly how the AI mentor, reading paths, and challenges work — in under 2 minutes.</p>
+  <div class="video-wrapper sc-a">
+    <div class="vid-cs">
+      <div class="vid-cs-icon">🎬</div>
+      <h3 class="vid-cs-title">Full Product Demo — Coming Soon</h3>
+      <p class="vid-cs-sub">We're recording the BookVyrse walkthrough video right now. Subscribe to our YouTube channel to be notified the moment it goes live — or try the live AI demo below.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <a class="vid-cs-link" href="https://www.youtube.com/channel/UChONMmUhxXf8OZ4o6fdzGCw" target="_blank" rel="noopener">▶ Subscribe on YouTube</a>
+        <a class="vid-cs-link" href="#ai-demo" style="background:transparent;border:1px solid rgba(124,58,237,.4);color:var(--white)" onclick="document.getElementById('ai-demo').scrollIntoView({behavior:'smooth'});return false">✨ Try Live AI Demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="stories">
+  <span class="section-tag">Student Stories</span>
+  <h2 class="section-title">Real students. Real transformations.<br>These aren't reviews — they're turning points.</h2>
+  <p class="section-sub">See exactly what changed before and after BookVyrse, in the words of students just like you.</p>
+  <div class="testimonial-featured">
+    <!-- CARD 1 -->
+    <div class="testimonial-card featured sc-a">
+      <div class="tc-quote-mark">"</div>
+      <div class="tc-stars">⭐⭐⭐⭐⭐</div>
+      <div class="ba-grid">
+        <div class="ba-col ba-col-before"><div class="ba-label-c">❌ Before BookVyrse</div><div class="ba-item">• Quit every book at Ch.2</div><div class="ba-item">• Zero career direction</div><div class="ba-item">• Felt lost &amp; behind peers</div></div>
+        <div class="ba-col ba-col-after"><div class="ba-label-c">✅ After BookVyrse</div><div class="ba-item">• 6 books finished in 90 days</div><div class="ba-item">• Clear roadmap &amp; goal</div><div class="ba-item">• Confident &amp; focused</div></div>
+      </div>
+      <p class="tc-text">"I was 17 with no idea what to do after school. BookVyrse gave me a mentor when I couldn't afford one. The AI answered questions <strong>my teachers never had time for</strong>. Ikigai changed how I see my entire future."</p>
+      <div class="tc-divider"></div>
+      <div class="tc-bottom">
+        <div class="tc-user">
+          <div class="tc-avatar-ring"><div class="tc-avatar-inner">👦</div></div>
+          <div><div class="tc-name">Arjun Sharma</div><div class="tc-meta">Class 12 · Delhi · IIT Aspirant</div></div>
+        </div>
+        <div class="tc-result">📈 6 books in 90 days</div>
+      </div>
+    </div>
+    <!-- CARD 2 -->
+    <div class="testimonial-card featured sc-a">
+      <div class="tc-quote-mark">"</div>
+      <div class="tc-stars">⭐⭐⭐⭐⭐</div>
+      <div class="ba-grid">
+        <div class="ba-col ba-col-before"><div class="ba-label-c">❌ Before BookVyrse</div><div class="ba-item">• Started biz, completely stuck</div><div class="ba-item">• No strategy or vision</div><div class="ba-item">• Burning out at 20</div></div>
+        <div class="ba-col ba-col-after"><div class="ba-label-c">✅ After BookVyrse</div><div class="ba-item">• ₹2L revenue in 60 days</div><div class="ba-item">• Clear growth system</div><div class="ba-item">• Energy &amp; direction restored</div></div>
+      </div>
+      <p class="tc-text">"The Lean Startup + Zero to One path from BookVyrse was exactly what I needed. The AI didn't just explain concepts — <strong>it applied them to MY situation</strong>. I went from stuck to ₹2 lakh revenue in just 2 months."</p>
+      <div class="tc-divider"></div>
+      <div class="tc-bottom">
+        <div class="tc-user">
+          <div class="tc-avatar-ring"><div class="tc-avatar-inner">🧑</div></div>
+          <div><div class="tc-name">Rohan Mehta</div><div class="tc-meta">Founder · 21 · Bangalore</div></div>
+        </div>
+        <div class="tc-result">💰 ₹2L in 60 days</div>
+      </div>
+    </div>
+  </div>
+  <!-- 3 MINI CARDS -->
+  <div class="testimonials-secondary">
+    <div class="tc-mini sc-a">
+      <div class="tc-quote-mark">"</div>
+      <div class="tc-stars">⭐⭐⭐⭐⭐</div>
+      <p class="tc-text">"I tried Blinkist, summaries, YouTube — nothing stuck. BookVyrse was the first thing that <strong>made me actually finish books</strong>. The daily challenges made it real. I now read 30 minutes every single day without fail."</p>
+      <div class="tc-divider"></div>
+      <div class="tc-bottom">
+        <div class="tc-user">
+          <div class="tc-avatar-ring"><div class="tc-avatar-inner">👧</div></div>
+          <div><div class="tc-name">Priya Nair</div><div class="tc-meta">1st Year BCom · Pune</div></div>
+        </div>
+        <div class="tc-result">📅 30 min/day habit</div>
+      </div>
+    </div>
+    <div class="tc-mini sc-a">
+      <div class="tc-quote-mark">"</div>
+      <div class="tc-stars">⭐⭐⭐⭐⭐</div>
+      <p class="tc-text">"Deep Work + Atomic Habits helped me go from <strong>failing 2 subjects to topping my semester</strong>. The AI explained concepts in a way my professors never bothered to. This is genuinely the best tool I've found for students."</p>
+      <div class="tc-divider"></div>
+      <div class="tc-bottom">
+        <div class="tc-user">
+          <div class="tc-avatar-ring"><div class="tc-avatar-inner">🧑‍💻</div></div>
+          <div><div class="tc-name">Karthik Reddy</div><div class="tc-meta">B.Tech 3rd Year · Hyderabad</div></div>
+        </div>
+        <div class="tc-result">🏆 Topped semester</div>
+      </div>
+    </div>
+    <div class="tc-mini sc-a">
+      <div class="tc-quote-mark">"</div>
+      <div class="tc-stars">⭐⭐⭐⭐⭐</div>
+      <p class="tc-text">"The Psychology of Money on BookVyrse <strong>literally changed how my whole family talks about money</strong>. I'm 19 and I've already started investing. My parents asked what changed — I just sent them the app link."</p>
+      <div class="tc-divider"></div>
+      <div class="tc-bottom">
+        <div class="tc-user">
+          <div class="tc-avatar-ring"><div class="tc-avatar-inner">👩</div></div>
+          <div><div class="tc-name">Sneha Patel</div><div class="tc-meta">2nd Year BBA · Ahmedabad</div></div>
+        </div>
+        <div class="tc-result">💸 Investing at 19</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY / FOUNDER -->
+<section id="founder">
+<section id="story">
+  <div class="story-inner">
+
+    <p class="story-eyebrow">✦ The real story behind BookVyrse</p>
+
+    <h1 class="story-headline">A 16-year-old from Jaipur.<br>A stubborn daughter.<br><em>One book that changed everything.</em></h1>
+    <p class="story-lede">BookVyrse wasn't born in a boardroom. It wasn't born in a college hackathon. It was born in a bedroom in Jaipur, in the mind of a girl who spent years refusing to read self-help books — until one day, she couldn't stop.</p>
+
+    <div class="keya-badge">
+      <div class="keya-avatar">K</div>
+      <div class="keya-info">
+        <span class="keya-name">Keya — Founder, BookVyrse</span>
+        <span class="keya-role">16 years old · Jaipur, Rajasthan</span>
+      </div>
+    </div>
+
+    <div class="story-chapters">
+
+      <!-- CH 1 -->
+      <div class="story-chapter sc-a">
+        <div class="sc-left">
+          <div class="sc-num">01</div>
+          <div class="sc-tag">The stubborn daughter</div>
+        </div>
+        <div class="sc-right">
+          <h3>My dad tried to get me to read self-help books for years. I refused every single time.</h3>
+          <p>My father is a reader. Not the fiction kind — the <em>self-help, underline-every-page, tell-your-daughter-about-it-at-dinner</em> kind. For years he would slide books across the table. <strong>The 7 Habits. Rich Dad Poor Dad. Atomic Habits.</strong> Each one with a quiet "beta, just try this one."</p>
+          <p>And for years, I — the stubborn, fictional-novels-only, absolutely-not kind of daughter — said no. I was the kid who lived in fantasy worlds, in stories where things happened to people. Self-help felt fake to me. Too polished. Too preachy. Too much like being told what to do.</p>
+          <div class="story-callout">
+            "I genuinely thought self-help books were for people who didn't have a personality yet. I was 15 and very wrong about that."
+            <span>— Keya</span>
+          </div>
+          <p>My friends felt the same. Every time someone at school mentioned finishing a self-help book, we'd all silently know — they started it, read two chapters, and gave up. Nobody actually finished them. Nobody actually understood them. And nobody talked about why.</p>
+        </div>
+      </div>
+
+      <!-- CH 2 -->
+      <div class="story-chapter sc-a">
+        <div class="sc-left">
+          <div class="sc-num">02</div>
+          <div class="sc-tag">The book that broke me open</div>
+        </div>
+        <div class="sc-right">
+          <h3>Then I read one book. And everything I thought I knew cracked right down the middle.</h3>
+          <p>I don't even fully remember how it ended up in my hands. But I picked up <strong>Don't Believe Everything You Think</strong> — and something about the language was different. It wasn't commanding. It wasn't telling me I was broken and here's how to fix it. It was just… talking to me. In plain words. Asking questions I'd never thought to ask myself.</p>
+          <div class="story-moment">
+            <span class="sm-icon">💡</span>
+            <p>It taught me to counter the thoughts I'd always accepted as true. The ones people around me had put there. The ones I'd never questioned. And that feeling — of <em>seeing your own mind differently</em> for the first time — I wanted every student to feel that.</p>
+          </div>
+          <p>Then I read Atomic Habits. And that's when the real problem hit me square in the face: we can all read a book. That's the easy part. The part where we fall apart is <strong>actually using it</strong>. The implementation. The making-it-real. Nobody teaches you that. No book does it for you. You're just supposed to figure it out alone.</p>
+          <p>Most people don't. Most people close the book, put it on a shelf, and quietly feel like they failed.</p>
+        </div>
+      </div>
+
+      <!-- CH 3 -->
+      <div class="story-chapter sc-a">
+        <div class="sc-left">
+          <div class="sc-num">03</div>
+          <div class="sc-tag">It runs in the family</div>
+        </div>
+        <div class="sc-right">
+          <h3>I didn't know anything about markets, funding, or startups. But I'd grown up watching someone build one.</h3>
+          <p>My mother is a founder. And growing up in that house meant growing up around a certain kind of energy — the late nights, the pivots, the conversations about customers and problems and what actually needs to exist in the world. I absorbed all of it without even realising it. The startup mindset wasn't something I had to learn. It was just the air I breathed at home.</p>
+          <div class="story-moment">
+            <span class="sm-icon">👩‍💼</span>
+            <p>Watching my mother build something from nothing taught me one thing before anything else: <em>you don't wait until you're ready. You start, and you figure it out as you go.</em> That's the only way anything real ever gets built.</p>
+          </div>
+          <p>So when the BookVyrse idea hit me, I wasn't scared of not knowing enough. I didn't do market research. I didn't write a business plan. I didn't wait. I just thought: <strong>students like me are suffering because reading feels impossible and no one helps them implement what they learn.</strong> That was enough. That was the whole brief.</p>
+          <div class="story-scene">
+            <div class="ss-label">What happened next — in one day</div>
+            <p>I sat down and started brainstorming. No clue where to start, so I just picked a starting point — the landing page. I built it. One day. Then I worked on the logo. Then the website. Then the AI layer. One thing at a time, no plan, just momentum. I kept telling myself: <strong>it doesn't matter where you start. Just start.</strong></p>
+          </div>
+          <p>The whole thing moved fast because I wasn't waiting to be ready. I was 16 and building something I genuinely believed the world needed. That felt like enough permission.</p>
+        </div>
+      </div>
+
+      <!-- CH 4 -->
+      <div class="story-chapter sc-a">
+        <div class="sc-left">
+          <div class="sc-num">04</div>
+          <div class="sc-tag">The dad moment</div>
+        </div>
+        <div class="sc-right">
+          <h3>The same man who gave me books for years called me at night and said "Keya, this is going to rock."</h3>
+          <p>When I told my dad about BookVyrse, he was supportive — but cautiously. He's a practical man. He loves books but he also knows how hard building anything real actually is. He heard me out. He nodded. He didn't shoot it down. But I could tell he was reserving judgment.</p>
+          <p>Then one night — maybe a week later — he called me. He'd been reading <strong>Deep Work</strong> by Cal Newport. He'd read it before, years ago. But the ideas weren't clicking the way they used to. He couldn't figure out why things that once felt clear now felt fuzzy.</p>
+          <div class="story-callout">
+            "Keya," he said, "this is exactly what BookVyrse needs to solve. I've read this book — but I need something to help me actually use it. This idea is going to rock."
+            <span>— Keya's father, the original BookVyrse believer</span>
+          </div>
+          <p>That phone call meant more than any investor pitch could. Because it came from the man who'd been handing me books for years — and he was telling me that even <em>he</em> needed what I was building. If a lifelong reader needed help turning books into action, then every student in India definitely did.</p>
+        </div>
+      </div>
+
+      <!-- CH 5 -->
+      <div class="story-chapter sc-a">
+        <div class="sc-left">
+          <div class="sc-num">05</div>
+          <div class="sc-tag">Why this matters</div>
+        </div>
+        <div class="sc-right">
+          <h3>I'm not building BookVyrse because I love books. I'm building it because I know what it feels like to be the student who doesn't.</h3>
+          <p>I was that student. Surrounded by self-help books I wouldn't touch. Friends who bought them and abandoned them. A culture that says "just read more" without ever explaining how to make reading matter.</p>
+          <p>BookVyrse is my answer to all of it. Not a summary app. Not a list of quotes. A real, AI-powered companion that meets you where you are, gives you a path, challenges you to apply what you've learned, and never lets you feel alone with a book again.</p>
+          <div class="story-moment">
+            <span class="sm-icon">🚀</span>
+            <p>I'm 16. I'm from Jaipur. I started this with zero connections, zero funding, and one book that changed how I see my own mind. If that's not proof that <em>ideas don't wait for the right age</em> — I don't know what is.</p>
+          </div>
+          <p>The students I'm building for are exactly like who I was six months ago: smart, curious, a little lost, and looking for something that actually helps. BookVyrse is that something. And we're only just getting started.</p>
+        </div>
+      </div>
+
+    </div><!-- end chapters -->
+
+    <div class="story-end sc-a">
+      <h3>This is Keya's story. What's yours?</h3>
+      <p>Every student who joins BookVyrse has their own moment — the one where a book finally clicked, or where they realised they needed something more than just words on a page. Join us and start writing yours.</p>
+      <button class="story-end-btn" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">🚀 Join BookVyrse — It's Free</button>
+    </div>
+
+  </div>
+</section>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist">
+  <div class="count-pill"><span class="count-dot"></span><span id="wl-count">9,847</span> students already joined</div>
+  <h2 class="section-title" style="max-width:680px;margin:0 auto 14px">Join 10,000 students building<br>a better reading habit</h2>
+  <p class="section-sub" style="margin:0 auto 40px">Get early access, exclusive book drops, and AI features before anyone else. No spam. Ever.</p>
+  <div class="waitlist-form" id="wl-form">
+    <div class="wl-row">
+      <input class="wl-input" id="wl-name" placeholder="Your name" type="text">
+      <input class="wl-input" id="wl-email" placeholder="Email address" type="email">
+    </div>
+    <input class="wl-input" id="wl-school" placeholder="Your school / college / university" type="text">
+    <button class="wl-btn" onclick="joinWaitlist()">🚀 Join BookVyrse — It's Free</button>
+    <p class="wl-note">No spam. No credit card. Just a smarter reading life. 📚</p>
+  </div>
+  <div id="wl-success" style="display:none;max-width:520px;margin:0 auto">
+    <div class="success-box">
+      <span class="s-emoji">🎉</span>
+      <h3 style="font-family:Sora,sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:7px;color:#4ade80">You're on the list!</h3>
+      <p style="color:var(--muted);font-size:.88rem">Welcome to BookVyrse. Your early access invite is on its way. Keep reading. Keep growing.</p>
+    </div>
+    <!-- REFERRAL BOX -->
+    <div class="referral-box">
+      <div class="ref-reward">🎁 Refer friends → unlock Premium early</div>
+      <div class="ref-title">Move up the waitlist faster</div>
+      <p class="ref-desc">Share your unique link. Every friend who joins moves you closer to the front — and unlocks <strong style="color:var(--white)">3 months of Premium free</strong> when we launch.</p>
+      <div class="ref-steps">
+        <div class="ref-step"><div class="rs-num">1</div><div class="rs-txt">Copy your link below</div></div>
+        <div class="ref-step"><div class="rs-num">3</div><div class="rs-txt">Friends join the waitlist</div></div>
+        <div class="ref-step"><div class="rs-num">🎁</div><div class="rs-txt">You get 3 months free</div></div>
+      </div>
+      <div class="ref-link-row">
+        <input class="ref-link-input" id="ref-link" readonly value="bookvyrse.com/join?ref=loading…">
+        <button class="ref-copy-btn" onclick="copyRefLink()">Copy Link</button>
+      </div>
+      <div class="ref-share-row">
+        <button class="ref-share-btn" onclick="shareRef('whatsapp')">💬 WhatsApp</button>
+        <button class="ref-share-btn" onclick="shareRef('twitter')">𝕏 Twitter</button>
+        <button class="ref-share-btn" onclick="window.open('https://instagram.com/bookvyrse.ai','_blank');copyRefLink()">📸 Instagram</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <span class="section-tag" style="display:block;text-align:center">Pricing</span>
+  <h2 class="section-title" style="text-align:center;margin:0 auto 14px">Simple, honest pricing.</h2>
+  <p class="section-sub" style="text-align:center;margin:0 auto 36px">Start completely free. Upgrade when you're ready. No credit card, ever.</p>
+  <div class="pricing-grid">
+    <div class="price-card sc-a">
+      <div class="price-pill free">✓ Free forever</div>
+      <div class="price-amt">₹0</div>
+      <p class="price-per">No card needed · Always free</p>
+      <p class="price-desc">Everything you need to discover BookVyrse and start learning from books right now.</p>
+      <ul class="price-feats">
+        <li><span class="pf-tick">✓</span>25 book previews with Chapter 1</li>
+        <li><span class="pf-tick">✓</span>3 key lessons per book</li>
+        <li><span class="pf-tick">✓</span>5 live AI mentor questions</li>
+        <li><span class="pf-tick">✓</span>Personalised reading path builder</li>
+        <li><span class="pf-tick">✓</span>Waitlist early access perks</li>
+        <li><span class="pf-cross">✕</span>Unlimited AI conversations</li>
+        <li><span class="pf-cross">✕</span>Full book learning paths</li>
+        <li><span class="pf-cross">✕</span>Daily implementation challenges</li>
+        <li><span class="pf-cross">✕</span>Progress tracking & streaks</li>
+      </ul>
+      <button class="price-btn" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Get Started Free →</button>
+    </div>
+    <div class="price-card pro sc-a">
+      <div class="price-pill premium">⭐ Premium — Coming Soon</div>
+      <div class="price-amt grad-price">₹499</div>
+      <p class="price-per">per month · Less than one textbook</p>
+      <p class="price-desc">The full BookVyrse mentor experience. Unlimited AI, real challenges, and visible growth.</p>
+      <ul class="price-feats">
+        <li><span class="pf-tick">✓</span>Everything in Free</li>
+        <li><span class="pf-tick">✓</span>Unlimited AI mentor — no limits</li>
+        <li><span class="pf-tick">✓</span>Full reading paths for every goal</li>
+        <li><span class="pf-tick">✓</span>Daily implementation challenges</li>
+        <li><span class="pf-tick">✓</span>Progress dashboard & streaks</li>
+        <li><span class="pf-tick">✓</span>Offline reading mode</li>
+        <li><span class="pf-tick">✓</span>Early access to new books</li>
+        <li><span class="pf-tick">✓</span>Waitlist members get 50% off forever</li>
+        <li><span class="pf-tick">✓</span>Direct founder access during beta</li>
+      </ul>
+      <button class="price-btn pro-btn" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">🚀 Join Waitlist — Lock Early Price</button>
+    </div>
+  </div>
+  <p class="price-note">Waitlist members lock in 50% off Premium for life. Join before launch.</p>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <span class="section-tag">Common Questions</span>
+  <h2 class="section-title">Frequently asked</h2>
+  <div class="faq-grid">
+    <div class="faq-item sc-a"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span>Is BookVyrse free to use?</span><span class="faq-arrow">▾</span></div><div class="faq-a">Yes! BookVyrse starts completely free. You get book previews, key lessons, and limited AI questions on the website. The full app experience — unlimited AI, full reading paths, and progress tracking — will have a generous free tier.</div></div>
+    <div class="faq-item sc-a"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span>Who is BookVyrse for?</span><span class="faq-arrow">▾</span></div><div class="faq-a">Students from Class 9 through postgraduates, and anyone aged 13–25 who wants to grow. If you've ever started a book and not finished it, or wanted a mentor but couldn't afford one, BookVyrse is exactly for you.</div></div>
+    <div class="faq-item sc-a"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span>How is this different from a summary app?</span><span class="faq-arrow">▾</span></div><div class="faq-a">Summary apps give you bullet points. BookVyrse gives you a mentor. We curate your path, guide your reading, set real challenges, and track your growth. The goal isn't to replace reading — it's to make your reading actually change your life.</div></div>
+    <div class="faq-item sc-a"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span>When will the app launch?</span><span class="faq-arrow">▾</span></div><div class="faq-a">We're targeting a beta launch very soon. Join the waitlist now to be among the first — members get early access and direct input into what we build first.</div></div>
+    <div class="faq-item sc-a"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span>Can I suggest books to add?</span><span class="faq-arrow">▾</span></div><div class="faq-a">Absolutely! Join the waitlist and email us your suggestions. We actively build the library based on what students actually want to read and learn from.</div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="ft-logo">Book<span>Vyrse</span></div>
+    <p>The gateway to a smarter reading life. Built by students, for students who want to grow.</p>
+  </div>
+  <div class="footer-col"><h4>Product</h4><a href="#how-it-works">How It Works</a><a href="#features">Features</a><a href="#library">Library</a><a href="#download">Download App</a><a href="#video-demo">Video Demo</a><a href="#ai-demo">Try AI Demo</a></div>
+  <div class="footer-col"><h4>Company</h4><a href="#story">Our Story</a><a href="#stories">Student Stories</a><a href="#pricing">Pricing</a><a href="#waitlist">Early Access</a><a href="#faq">FAQ</a></div>
+  <div class="footer-col"><h4>Account</h4><a href="#" onclick="openAuth('login');return false">Sign In</a><a href="#" onclick="openAuth('signup');return false">Create Account</a><a href="#" href="mailto:bookversehq@gmail.com">Contact Us</a><a href="#" href="#" onclick="showToast('📄 Privacy Policy — coming before app launch in July 2025.');return false">Privacy Policy <span style='font-size:.65rem;color:var(--gold);font-weight:700'>SOON</span></a></div>
+</footer>
+<div class="footer-bottom">
+  <p>© 2025 BookVyrse · Built by Keya Gupta, 16, Jaipur · Building in public 📚</p>
+  <div class="social-links">
+    <a class="social-link" href="https://www.youtube.com/channel/UChONMmUhxXf8OZ4o6fdzGCw" target="_blank" rel="noopener" title="BookVyrse on YouTube">▶</a>
+    <a class="social-link" href="https://instagram.com/bookvyrse.ai" target="_blank" rel="noopener" title="BookVyrse on Instagram">📸</a>
+    <a class="social-link" href="#" onclick="showToast('🐦 @BookVyrse on X — launching soon!');return false" title="X — Coming Soon">𝕏</a>
+    <a class="social-link" href="#" onclick="showToast('LinkedIn: BookVyrse — launching soon!');return false" title="LinkedIn — Coming Soon">in</a>
+  </div>
+</div>
+
+<script>
+/* ─── PARTICLES ─── */
+(()=>{const cv=document.getElementById('bg-canvas'),ct=cv.getContext('2d');let W,H,P=[];const rsz=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};rsz();addEventListener('resize',rsz,{passive:true});for(let i=0;i<80;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.3,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,c:Math.random()>.5?'#7C3AED':'#2563EB'});const draw=()=>{ct.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ct.beginPath();ct.arc(p.x,p.y,p.r,0,Math.PI*2);ct.fillStyle=p.c;ct.fill()});for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ct.beginPath();ct.moveTo(P[i].x,P[i].y);ct.lineTo(P[j].x,P[j].y);ct.strokeStyle=`rgba(124,58,237,${.1*(1-d/110)})`;ct.lineWidth=.5;ct.stroke()}};requestAnimationFrame(draw)};draw()})();
+
+/* ─── SCROLL ─── */
+addEventListener('scroll',()=>{const t=document.body.scrollHeight-innerHeight;if(t>0)document.getElementById('scroll-bar').style.width=(scrollY/t*100)+'%';document.getElementById('navbar').classList.toggle('scrolled',scrollY>60)},{passive:true});
+
+/* ─── MARQUEE ─── */
+const BOOKS_MQ=[['⚛️','Atomic Habits'],['🏔️','The Mountain Is You'],['🌟','7 Habits'],['🧘','Think Like a Monk'],['⏰','The Power of Now'],['💰','Rich Dad Poor Dad'],['📊','Psychology of Money'],['📈','Intelligent Investor'],['💸','I Will Teach You To Be Rich'],['🏎️','Millionaire Fastlane'],['🚀','The Lean Startup'],['🔮','Zero to One'],['💡','$100 Startup'],['🔧','Rework'],['⚡','Hard Thing About Hard Things'],['🎯','Deep Work'],['🧩','Make It Stick'],['💡','Ultralearning'],['🐸','Eat That Frog!'],['🧠','Limitless'],['🧠','Thinking Fast and Slow'],['🎩','Influence'],['🎭','Surrounded by Idiots'],['🌊','Laws of Human Nature'],['🔄','The Power of Habit']];
+const mq=document.getElementById('mq');let mqH='';[...BOOKS_MQ,...BOOKS_MQ].forEach(([e,t])=>{mqH+=`<div class="marquee-item"><span>${e}</span><span>${t}</span></div>`});mq.innerHTML=mqH;
+
+/* ─── TOAST ─── */
+let toastT;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200)}
+
+/* ─── MOBILE ─── */
+function toggleMob(){const h=document.getElementById('ham'),m=document.getElementById('mobile-menu');h.classList.toggle('open');m.classList.toggle('open')}
+function closeMob(){document.getElementById('ham').classList.remove('open');document.getElementById('mobile-menu').classList.remove('open')}
+
+/* ─── COUNTERS ─── */
+function animCtr(el,target,sfx,dur){let st=null;const s=ts=>{if(!st)st=ts;const p=Math.min((ts-st)/dur,1),v=Math.floor(p*target);el.textContent=v>=1000?v.toLocaleString()+sfx:v+sfx;if(p<1)requestAnimationFrame(s);else el.textContent=target>=1000?target.toLocaleString()+sfx:target+sfx};requestAnimationFrame(s)}
+const cObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){animCtr(document.getElementById('ctr-s'),9847,'',1800);animCtr(document.getElementById('ctr-b'),25,'+',1200);animCtr(document.getElementById('ctr-f'),100,'%',1000);cObs.disconnect()}})},{threshold:.3});
+cObs.observe(document.querySelector('.social-proof-strip'));
+
+/* ─── AUTH ─── */
+function openAuth(tab='login'){document.getElementById('auth-modal').classList.add('open');document.body.style.overflow='hidden';switchTab(tab);document.getElementById('auth-success').style.display='none';document.getElementById('auth-error').classList.remove('show')}
+function closeAuth(){document.getElementById('auth-modal').classList.remove('open');document.body.style.overflow=''}
+function switchTab(t){document.getElementById('tab-login').classList.toggle('active',t==='login');document.getElementById('tab-signup').classList.toggle('active',t==='signup');document.getElementById('panel-login').classList.toggle('active',t==='login');document.getElementById('panel-signup').classList.toggle('active',t==='signup');document.getElementById('auth-subtitle').textContent=t==='login'?'Welcome back! Continue your learning journey.':'Join 10,000+ students already learning smarter.';document.getElementById('auth-error').classList.remove('show')}
+function showAuthErr(m){const e=document.getElementById('auth-error');e.textContent=m;e.classList.add('show')}
+function setLoggedIn(name){const pill=document.getElementById('user-pill');document.getElementById('nav-login-btn').style.display='none';document.getElementById('nav-cta').style.display='none';pill.style.display='flex';document.getElementById('up-av').textContent=name[0].toUpperCase();document.getElementById('up-nm').textContent=name.split(' ')[0]}
+function showAuthSuccess(title,msg){document.getElementById('panel-login').classList.remove('active');document.getElementById('panel-signup').classList.remove('active');const s=document.getElementById('auth-success');s.style.display='block';document.getElementById('auth-s-title').textContent=title;document.getElementById('auth-s-msg').textContent=msg;setTimeout(closeAuth,2200)}
+function doLogin(){
+  const email=document.getElementById('li-email').value.trim(),pass=document.getElementById('li-pass').value;
+  if(!email||!email.includes('@')){showAuthErr('Please enter a valid email address.');return}
+  if(pass.length<6){showAuthErr('Password must be at least 6 characters.');return}
+  const btn=document.getElementById('li-btn');btn.disabled=true;btn.textContent='Signing in…';
+  setTimeout(()=>{
+    const name=email.split('@')[0].replace(/[._]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+    setLoggedIn(name);showAuthSuccess('Welcome back, '+name.split(' ')[0]+'! 👋','Your reading journey continues. Your path is waiting.');
+    btn.disabled=false;btn.textContent='Sign In to BookVyrse →';
+  },1200)
+}
+function doSignup(){
+  const name=document.getElementById('su-name').value.trim(),email=document.getElementById('su-email').value.trim(),pass=document.getElementById('su-pass').value;
+  if(!name){showAuthErr('Please enter your full name.');return}
+  if(!email||!email.includes('@')){showAuthErr('Please enter a valid email address.');return}
+  if(pass.length<8){showAuthErr('Password must be at least 8 characters.');return}
+  const btn=document.getElementById('su-btn');btn.disabled=true;btn.textContent='Creating account…';
+  setTimeout(()=>{
+    setLoggedIn(name);
+    let c=parseInt(document.getElementById('wl-count').textContent.replace(/,/g,''))||9847;
+    document.getElementById('wl-count').textContent=(c+1).toLocaleString();
+    showAuthSuccess('Welcome to BookVyrse, '+name.split(' ')[0]+'! 🎉','Your account is ready. Start your first reading journey now!');
+    btn.disabled=false;btn.textContent='Create My Account →';
+  },1400)
+}
+function socialAuth(p){closeAuth();setTimeout(()=>{setLoggedIn(p+' User');showToast('✅ Signed in with '+p+'! Welcome to BookVyrse!')},500)}
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeAuth();closeModal();closeFeedback()}});
+
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeAuth();closeModal();closeFeedback()}});
+
+/* ─── FEATURES ─── */
+let streak=14,bCnt=6,cCnt=24;
+function showFeat(el,id){document.querySelectorAll('.feature-item').forEach(f=>f.classList.remove('active'));document.querySelectorAll('.preview-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById(id).classList.add('active')}
+function markComplete(){const b=document.getElementById('ch-btn');b.textContent='🎉 Done!';b.style.background='linear-gradient(135deg,#16a34a,#15803d)';b.disabled=true;document.getElementById('c-cnt').textContent=++cCnt;const x=document.getElementById('xp-bar');x.style.width=Math.min(parseFloat(x.style.width)+12,100)+'%';showToast('🏆 Challenge complete! +50 XP!')}
+function addStreak(){document.getElementById('streak-d').textContent='🔥 '+(++streak)+' Day Streak';const x=document.getElementById('xp-bar');x.style.width=Math.min(parseFloat(x.style.width)+5,100)+'%';showToast('🔥 '+streak+' day streak! Keep going!')}
+
+/* ─── BOOK DATA ─── */
+const BOOKS=[
+  {id:'ah',cat:'si',e:'⚛️',t:'Atomic Habits',a:'James Clear',d:'Small habits compound into extraordinary results. The 1% rule changes how you think about progress forever.'},
+  {id:'my',cat:'si',e:'🏔️',t:'The Mountain Is You',a:'Brianna Wiest',d:'Overcome self-sabotage and become the person you were always meant to be.'},
+  {id:'7h',cat:'si',e:'🌟',t:'The 7 Habits of Highly Effective People',a:'Stephen Covey',d:'Timeless principles for personal and professional effectiveness that transform every area of life.'},
+  {id:'tlm',cat:'si',e:'🧘',t:'Think Like a Monk',a:'Jay Shetty',d:'Train your mind for peace, purpose, and clarity through ancient wisdom reimagined for modern students.'},
+  {id:'pon',cat:'si',e:'⏰',t:'The Power of Now',a:'Eckhart Tolle',d:'A guide to spiritual enlightenment. Live fully in the present moment and transform your reality.'},
+  {id:'rdpd',cat:'fi',e:'💰',t:'Rich Dad Poor Dad',a:'Robert Kiyosaki',d:'What the rich teach their kids about money that the poor and middle class do not.'},
+  {id:'psm',cat:'fi',e:'📊',t:'The Psychology of Money',a:'Morgan Housel',d:'Money is about behaviour, not math. Why smart people make poor financial decisions.'},
+  {id:'ii',cat:'fi',e:'📈',t:'The Intelligent Investor',a:'Benjamin Graham',d:'The definitive book on value investing and making smart long-term financial decisions.'},
+  {id:'ity',cat:'fi',e:'💸',t:'I Will Teach You to Be Rich',a:'Ramit Sethi',d:'A 6-week personal finance program for young people to start growing wealth immediately.'},
+  {id:'mf',cat:'fi',e:'🏎️',t:'The Millionaire Fastlane',a:'MJ DeMarco',d:'Crack the code to wealth and live rich for a lifetime — not just in retirement.'},
+  {id:'ls',cat:'eb',e:'🚀',t:'The Lean Startup',a:'Eric Ries',d:'How entrepreneurs use continuous innovation to create radically successful businesses.'},
+  {id:'z1',cat:'eb',e:'🔮',t:'Zero to One',a:'Peter Thiel',d:'Notes on startups and how to build the future. Create something genuinely new.'},
+  {id:'100s',cat:'eb',e:'💡',t:'The $100 Startup',a:'Chris Guillebeau',d:'Reinvent the way you make a living, do what you love, and create a new future.'},
+  {id:'rw',cat:'eb',e:'🔧',t:'Rework',a:'Jason Fried & DHH',d:'A better, smarter way to succeed in business — no business plan required.'},
+  {id:'htha',cat:'eb',e:'⚡',t:'The Hard Thing About Hard Things',a:'Ben Horowitz',d:'Building a business when there are no easy answers. Raw wisdom from the trenches.'},
+  {id:'dw',cat:'sp',e:'🎯',t:'Deep Work',a:'Cal Newport',d:'The ability to focus without distraction is rare and valuable. Learn to master it.'},
+  {id:'mis',cat:'sp',e:'🧩',t:'Make It Stick',a:'Peter Brown',d:'The science of successful learning. Evidence-based strategies to learn faster and retain more.'},
+  {id:'ul',cat:'sp',e:'💡',t:'Ultralearning',a:'Scott Young',d:'Master hard skills and accelerate your career with aggressive self-directed learning.'},
+  {id:'etf',cat:'sp',e:'🐸',t:'Eat That Frog!',a:'Brian Tracy',d:'Stop procrastinating and get more done in less time. 21 proven anti-procrastination techniques.'},
+  {id:'lmt',cat:'sp',e:'🧠',t:'Limitless',a:'Jim Kwik',d:'Upgrade your brain, learn anything faster, and unlock a life of no limits.'},
+  {id:'tfs',cat:'ps',e:'🧠',t:'Thinking, Fast and Slow',a:'Daniel Kahneman',d:'Your brain has two systems. Understanding them unlocks better decisions in every area of life.'},
+  {id:'inf',cat:'ps',e:'🎩',t:'Influence',a:'Robert Cialdini',d:'The psychology of persuasion — learn the six universal principles that guide human decisions.'},
+  {id:'sbi',cat:'ps',e:'🎭',t:'Surrounded by Idiots',a:'Thomas Erikson',d:'Understand the four types of human behaviour and why we communicate the way we do.'},
+  {id:'lhn',cat:'ps',e:'🌊',t:'The Laws of Human Nature',a:'Robert Greene',d:"Understand people's drives and motivations — even when they try to hide them."},
+  {id:'poh',cat:'ps',e:'🔄',t:'The Power of Habit',a:'Charles Duhigg',d:'Why we do what we do in life and business, and how to change habits for good.'},
+];
+const COVER={si:'bc-si',fi:'bc-fi',eb:'bc-eb',sp:'bc-sp',ps:'bc-ps'};
+const CNAME={si:'Self-Improvement',fi:'Finance & Money',eb:'Entrepreneurship',sp:'Students & Productivity',ps:'Psychology'};
+
+function renderBooks(f){
+  const g=document.getElementById('books-grid');g.innerHTML='';
+  BOOKS.forEach((b,i)=>{
+    if(f!=='all'&&f!==b.cat)return;
+    const d=document.createElement('div');d.className='book-card visible';
+    d.style.cssText='opacity:0;transform:translateY(16px);transition:opacity .4s ease '+i*.04+'s,transform .4s ease '+i*.04+'s';
+    d.innerHTML=`<div class="book-cover ${COVER[b.cat]}"><span class="cat-badge">${CNAME[b.cat]}</span>${b.e}</div><div class="book-info"><h3>${b.t}</h3><div class="author">${b.a}</div><div class="lessons-tag">🎯 3 Key Lessons Free</div><p class="preview-text">${b.d}</p><div class="book-cta"><button class="read-more-btn" onclick="openModal('${b.id}')">Preview Chapter 1 →</button><span class="lock-badge">🔒 Full in app</span></div></div>`;
+    g.appendChild(d);
+    setTimeout(()=>{d.style.opacity='1';d.style.transform='translateY(0)'},50);
+  });
+}
+function filterBooks(cat,btn){document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderBooks(cat)}
+renderBooks('all');
+
+/* ─── JOURNEY ─── */
+const PATHS={
+  confidence:{goal:'Build Confidence',book:'Think Like a Monk',focus:'Self-Belief',chal:'Speak Up 30 Days',grow:'Fearless You'},
+  career:{goal:'Career Clarity',book:'Deep Work',focus:'Strength Mapping',chal:'Career Experiments',grow:'Clear Direction'},
+  focus:{goal:'Improve Focus',book:'Deep Work',focus:'Time Blocking',chal:'2hr Deep Work',grow:'Peak Performer'},
+  money:{goal:'Money Mindset',book:'Rich Dad Poor Dad',focus:'Financial IQ',chal:'Budget Challenge',grow:'Financial Clarity'},
+  business:{goal:'Start a Business',book:'The Lean Startup',focus:'Startup Thinking',chal:'Build in 7 Days',grow:'Founder Mindset'},
+  stress:{goal:'Manage Stress',book:'The Power of Now',focus:'Mindfulness',chal:'Daily Calm Ritual',grow:'Inner Peace'},
+  habits:{goal:'Better Habits',book:'Atomic Habits',focus:'Habit Stacking',chal:'21-Day Challenge',grow:'New Identity'},
+  default:{goal:'Personal Growth',book:'Atomic Habits',focus:'Core Principles',chal:'Weekly Actions',grow:'Better You'}
+};
+const PBKS={confidence:['Think Like a Monk','The Mountain Is You','Atomic Habits'],career:['Deep Work','Zero to One','Think Like a Monk'],focus:['Deep Work','Limitless','Eat That Frog!'],money:['Rich Dad Poor Dad','Psychology of Money','Millionaire Fastlane'],business:['The Lean Startup','Zero to One','The $100 Startup'],stress:['The Power of Now','Think Like a Monk','Atomic Habits'],habits:['Atomic Habits','The Power of Habit','Make It Stick'],default:['Atomic Habits','Think Like a Monk','The 7 Habits']};
+function setGoal(t){document.getElementById('j-inp').value=t;generatePath()}
+function generatePath(){
+  const v=document.getElementById('j-inp').value.toLowerCase().trim();
+  if(!v){showToast('💡 Enter your goal first!');return}
+  let k='default';
+  if(v.includes('confiden'))k='confidence';
+  else if(v.includes('career')||v.includes('job')||v.includes('future')||v.includes('confused'))k='career';
+  else if(v.includes('focus')||v.includes('distract')||v.includes('concentrat'))k='focus';
+  else if(v.includes('money')||v.includes('financ')||v.includes('rich')||v.includes('invest'))k='money';
+  else if(v.includes('business')||v.includes('startup')||v.includes('entrepreneur'))k='business';
+  else if(v.includes('stress')||v.includes('anxi')||v.includes('calm')||v.includes('overwhelm'))k='stress';
+  else if(v.includes('habit')||v.includes('routine')||v.includes('disciplin'))k='habits';
+  const d=PATHS[k];
+  document.getElementById('pn-goal').textContent=d.goal;
+  document.getElementById('pn-book').textContent=d.book;
+  document.getElementById('pn-focus').textContent=d.focus;
+  document.getElementById('pn-chal').textContent=d.chal;
+  document.getElementById('pn-grow').textContent=d.grow;
+  document.getElementById('path-display').classList.add('show');
+  const pp=document.getElementById('path-pills');
+  pp.style.display='flex';
+  pp.innerHTML=PBKS[k].map(b=>`<span class="book-pill">📖 ${b}</span>`).join('');
+  showToast('✨ Your personalised path is ready!')
+}
+document.getElementById('j-inp').addEventListener('keydown',e=>{if(e.key==='Enter')generatePath()});
+
+/* ─── AI DEMO ─── */
+let qLeft=5,hist=[],aiLoading=false;
+const SYS=`You are BookVyrse AI — a warm, encouraging book mentor for students aged 13-25. Our library has exactly 25 books:
+Self-Improvement: Atomic Habits (James Clear), The Mountain Is You (Brianna Wiest), The 7 Habits of Highly Effective People (Stephen Covey), Think Like a Monk (Jay Shetty), The Power of Now (Eckhart Tolle).
+Finance: Rich Dad Poor Dad (Kiyosaki), The Psychology of Money (Housel), The Intelligent Investor (Graham), I Will Teach You to Be Rich (Sethi), The Millionaire Fastlane (DeMarco).
+Entrepreneurship: The Lean Startup (Ries), Zero to One (Thiel), The $100 Startup (Guillebeau), Rework (Fried & DHH), The Hard Thing About Hard Things (Horowitz).
+Students & Productivity: Deep Work (Newport), Make It Stick (Brown), Ultralearning (Young), Eat That Frog! (Tracy), Limitless (Kwik).
+Psychology: Thinking Fast and Slow (Kahneman), Influence (Cialdini), Surrounded by Idiots (Erikson), The Laws of Human Nature (Greene), The Power of Habit (Duhigg).
+Recommend specific books from this list. Keep responses under 120 words. Be warm, specific, and motivating. Only discuss books, learning, personal growth, career, and student topics.`;
+function appendMsg(role,html){const b=document.getElementById('chat-body'),d=document.createElement('div');d.className='chat-msg '+role;d.innerHTML=`<div class="chat-avatar">${role==='ai'?'🤖':'🎓'}</div><div class="chat-bubble">${html}</div>`;b.appendChild(d);b.scrollTop=b.scrollHeight;return d}
+async function sendAI(){
+  if(aiLoading||qLeft<=0)return;
+  const inp=document.getElementById('demo-inp'),msg=inp.value.trim();if(!msg)return;
+  aiLoading=true;document.getElementById('demo-btn').disabled=true;document.getElementById('demo-btn').textContent='...';
+  inp.value='';
+  appendMsg('user',msg.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+  const typing=appendMsg('ai','<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>');
+  hist.push({role:'user',content:msg});
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:SYS,messages:hist})});
+    const data=await r.json();
+    const reply=data.content?.[0]?.text||'Let me think about that — try again!';
+    hist.push({role:'assistant',content:reply});
+    typing.querySelector('.chat-bubble').innerHTML=reply.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  }catch(e){typing.querySelector('.chat-bubble').innerHTML='Trouble connecting right now — but download the app for seamless AI mentoring! 📚'}
+  document.getElementById('chat-body').scrollTop=99999;
+  qLeft--;document.getElementById('q-left').textContent=qLeft;
+  if(qLeft<=0){document.getElementById('demo-ft').innerHTML='<strong style="color:var(--gold)">🚀 <a href="#waitlist" style="color:var(--purple);text-decoration:none">Join waitlist for unlimited AI →</a></strong>';document.getElementById('demo-btn').style.opacity='.4';}
+  else{document.getElementById('demo-btn').disabled=false;document.getElementById('demo-btn').textContent='Ask →'}
+  aiLoading=false;
+}
+
+/* ─── MODAL DATA ─── */
+const MODAL={
+  'ah':{t:'Atomic Habits',a:'James Clear',ch:'The British cycling team went from losing to winning multiple Tour de France titles — not through one big change, but hundreds of 1% improvements. The core insight: 1% better daily = 37× better in a year. Your habits are the compound interest of self-improvement. Most people overestimate dramatic change and underestimate tiny, consistent actions.',ls:['Habits compound like interest — tiny gains add up massively over time.','You don\'t rise to your goals; you fall to your systems.','Start with identity: decide who you want to be, then prove it with tiny daily wins.']},
+  'my':{t:'The Mountain Is You',a:'Brianna Wiest',ch:'The mountain in your life isn\'t an obstacle outside you — it\'s the part of you that self-sabotages. We often get in our own way through unconscious patterns, fear of success, or comfort in familiar pain. Transformation isn\'t about removing the mountain. It\'s about becoming the person who can climb it.',ls:['Self-sabotage is a trauma response, not a character flaw.','Your triggers reveal exactly what needs to heal within you.','Building yourself up is how you overcome what once held you back.']},
+  '7h':{t:'The 7 Habits of Highly Effective People',a:'Stephen Covey',ch:'Covey argues that lasting success comes from character, not technique. The first habit — Be Proactive — means taking responsibility for your life instead of blaming circumstances. You are not a product of your environment; you are a product of your choices. This single shift separates people who lead from those who follow.',ls:['Be proactive: take responsibility for your responses to any situation.','Begin with the end in mind: start every goal knowing exactly what success looks like.','Put first things first: prioritise what matters, not just what\'s urgent.']},
+  'tlm':{t:'Think Like a Monk',a:'Jay Shetty',ch:'Jay Shetty spent three years as a monk in India. The peace he found wasn\'t about escaping life — it was about gaining tools to live it more fully. This book translates ancient monk wisdom into modern practices: from quieting mental noise to finding your dharma (purpose) to mastering your fears.',ls:['The mind is like a forest fire — left unchecked, it destroys everything in its path.','Your purpose (dharma) lives at the intersection of passion, skills, and the world\'s needs.','Detach from outcomes; focus entirely on the quality of action you put in right now.']},
+  'pon':{t:'The Power of Now',a:'Eckhart Tolle',ch:'Most human suffering comes from living in the past or worrying about the future. Tolle\'s core insight: the present moment is the only place life actually happens. Your mind is not you — and once you observe your thoughts rather than being controlled by them, freedom begins.',ls:['The present moment is the only place life truly exists.','The ego creates suffering by identifying with past pain and future fear.','Observing your thoughts without judgment is the beginning of true consciousness.']},
+  'rdpd':{t:'Rich Dad Poor Dad',a:'Robert Kiyosaki',ch:'Kiyosaki contrasts two mindsets — his educated father who stayed poor and his friend\'s father who became rich. The core lesson: the rich don\'t work for money — money works for them. Understanding assets (things that put money in your pocket) vs. liabilities (things that take money out) is the foundation of wealth.',ls:['The rich acquire assets; the poor and middle class acquire liabilities they think are assets.','Financial literacy isn\'t taught in school — you must seek it yourself.','Your house is likely not an asset if it\'s taking money out of your pocket every month.']},
+  'psm':{t:'The Psychology of Money',a:'Morgan Housel',ch:'Housel argues that doing well with money has little to do with intelligence. It\'s about behaviour. A person who grew up in poverty will have fundamentally different instincts about risk than someone who grew up wealthy — and both will think the other is irrational. No one is irrational. They\'re all responding to their own experience.',ls:['Everyone\'s relationship with money is shaped by personal history, not pure logic.','Wealth is what you don\'t spend — it\'s the money left invisible in your account.','The most important financial skill is getting the goalpost to stop moving.']},
+  'ls':{t:'The Lean Startup',a:'Eric Ries',ch:'Traditional business plans assume we can predict the future. We can\'t. The Lean Startup replaces long planning cycles with rapid experimentation and validated learning. Build a Minimum Viable Product, measure what customers actually do, and learn fast enough to pivot before you run out of resources.',ls:['Build-Measure-Learn: iterate rapidly instead of planning for years.','A startup\'s job is not to execute a plan — it\'s to find a plan that works.','Validated learning (real customer behaviour) is the true currency of startups.']},
+  'z1':{t:'Zero to One',a:'Peter Thiel',ch:'Every moment in business happens only once. The next Google won\'t make a search engine. Creating something genuinely new (0 to 1) is harder and more valuable than copying what already exists (1 to n). The best businesses have a secret — something true that very few people agree with yet.',ls:['Competition is for losers — aim for monopoly through genuine differentiation.','Technology doesn\'t just improve things — it creates entirely new possibilities.','The most valuable companies solve hard problems with secrets only they currently see.']},
+  'dw':{t:'Deep Work',a:'Cal Newport',ch:'In our distracted economy, two abilities determine success: quickly mastering hard things, and producing at an elite level. Both depend on deep work — distraction-free focus that pushes cognitive abilities to their limit. As the world gets louder, the ability to go deep becomes rarer and therefore more valuable.',ls:['Deep work is the ability to focus without distraction on cognitively demanding tasks.','Shallow work (emails, meetings) doesn\'t create new value and is easily replicated by anyone.','The ability to perform deep work is the superpower of the 21st century.']},
+  'tfs':{t:'Thinking, Fast and Slow',a:'Daniel Kahneman',ch:'Kahneman introduces two systems: System 1 (fast, automatic, emotional) and System 2 (slow, deliberate, logical). Most decisions are made by System 1 — the lazy System 2 accepts what System 1 presents without checking. This is where most of our cognitive biases and costly mistakes come from.',ls:['System 1 is fast and emotional; System 2 is slow and logical — both are always active.','Most decisions are unconscious and often irrational — made by System 1 without our realising.','Recognising which system drives your choices is the first step to consistently better thinking.']},
+  'lmt':{t:'Limitless',a:'Jim Kwik',ch:'Jim Kwik had a brain injury as a child and was told he was broken. He spent years learning how to learn — and discovered that the limits on our minds aren\'t real. Limitless shows you how to upgrade your mindset (belief), motivation (purpose), and methods (process) to unlock your brain\'s full potential.',ls:['Lies we believe limit us more than any lack of talent or intelligence.','Learning how to learn is the single most important skill in the 21st century.','Memory, focus, and reading speed can all be trained like muscles with the right methods.']}
+};
+BOOKS.forEach(b=>{if(!MODAL[b.id])MODAL[b.id]={t:b.t,a:b.a,ch:`${b.t} by ${b.a} opens with a powerful insight that challenges conventional wisdom. This opening chapter sets the foundation for everything that follows — introducing the central idea that will reshape how you think about ${b.d.toLowerCase().replace('.','')}.\n\nAs you read, you'll notice the author backs every insight with real research, compelling stories, and practical frameworks you can apply immediately to your own life.`,ls:[`The central insight of ${b.t} challenges what most people believe about this topic.`,'Every concept in this book is backed by research and real-world examples you can apply.','The ideas in this chapter compound as you act on them — start with just one today.']}});
+
+function openModal(id){
+  const d=MODAL[id];if(!d)return;
+  document.getElementById('modal-title').textContent=d.t;
+  document.getElementById('modal-author').textContent='by '+d.a;
+  document.getElementById('modal-body').innerHTML=`<div class="modal-section-label">📖 Chapter 1 Preview</div><p class="modal-chapter-text">${d.ch.replace(/\n\n/g,'</p><p class="modal-chapter-text" style="margin-top:14px">').replace(/\n/g,'<br>')}</p><div class="modal-section-label" style="margin-top:24px">🎯 3 Key Lessons</div>${d.ls.map((l,i)=>`<div class="modal-lesson"><div class="ml-num">${i+1}</div><div class="ml-text">${l}</div></div>`).join('')}<button class="modal-cta" onclick="closeModal();document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">📲 Continue learning in the full app →</button>`;
+  document.getElementById('chapter-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('chapter-modal').classList.remove('open');document.body.style.overflow=''}
+
+/* ─── DOWNLOAD ─── */
+function dlClick(p){showToast(p==='ios'?'🍎 iOS app coming soon! Join the waitlist to be first.':'▶ Android app coming soon! Join the waitlist to be first.');setTimeout(()=>document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}),1000)}
+
+/* ─── WAITLIST ─── */
+let wlTotal=9847;
+function joinWaitlist(){
+  const n=document.getElementById('wl-name').value.trim(),e=document.getElementById('wl-email').value.trim();
+  if(!n){showToast('👋 Please enter your name!');return}
+  if(!e||!e.includes('@')){showToast('📧 Please enter a valid email!');return}
+  wlTotal++;document.getElementById('wl-count').textContent=wlTotal.toLocaleString();
+  document.getElementById('wl-form').style.display='none';
+  document.getElementById('wl-success').style.display='block';
+  initReferral(n);
+  showToast('🎉 Welcome to BookVyrse, '+n.split(' ')[0]+'!')
+}
+
+/* ─── FAQ ─── */
+function toggleFaq(item){const was=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open'));if(!was)item.classList.add('open')}
+
+/* ─── SCROLL ANIMATIONS ─── */
+const scObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.07});
+document.querySelectorAll('.sc-a').forEach(el=>scObs.observe(el));
+
+
+
+
+
+/* ─── LIBRARY SEARCH ─── */
+function libSearch(q){
+  const term=q.toLowerCase().trim();
+  let found=0;
+  document.querySelectorAll('.book-card').forEach(c=>{
+    const match=!term||
+      (c.querySelector('h3')?.textContent.toLowerCase().includes(term))||
+      (c.querySelector('.author')?.textContent.toLowerCase().includes(term));
+    c.style.display=match?'':'none';
+    if(match)found++;
+  });
+  document.getElementById('lib-empty').style.display=found===0&&term?'block':'none';
+  if(term){
+    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.cat-tab')[0].classList.add('active');
+  }
+}
+
+/* ─── FEEDBACK ─── */
+let fbRating=0;
+function openFeedback(){
+  document.getElementById('fb-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('fb-form-state').style.display='block';
+  document.getElementById('fb-success-state').style.display='none';
+  fbRating=0;
+  document.querySelectorAll('.fb-star').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.fb-opt').forEach(o=>o.classList.remove('sel'));
+  document.getElementById('fb-text').value='';
+}
+function closeFeedback(){
+  document.getElementById('fb-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function setRating(n){
+  fbRating=n;
+  document.querySelectorAll('.fb-star').forEach((s,i)=>s.classList.toggle('active',i<n));
+}
+function toggleFbOpt(el){el.classList.toggle('sel')}
+function submitFeedback(){
+  const msg=document.getElementById('fb-text').value.trim();
+  const opts=[...document.querySelectorAll('.fb-opt.sel')].map(o=>o.textContent).join(', ');
+  if(!fbRating&&!msg&&!opts){showToast('Please share at least a rating or a message!');return}
+  document.getElementById('fb-form-state').style.display='none';
+  document.getElementById('fb-success-state').style.display='block';
+  setTimeout(closeFeedback,2800);
+}
+addEventListener('keydown',e=>{if(e.key==='Escape')closeFeedback()});
+
+/* ─── DARK / LIGHT MODE ─── */
+(function(){
+  const saved = localStorage.getItem('bv_theme');
+  if(saved==='light'){document.body.classList.add('light');const b=document.getElementById('theme-btn');if(b)b.textContent='☀️';}
+})();
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  const btn=document.getElementById('theme-btn');
+  btn.textContent=isLight?'☀️':'🌙';
+  try{localStorage.setItem('bv_theme',isLight?'light':'dark')}catch(e){}
+  showToast(isLight?'☀️ Light mode on':'🌙 Dark mode on');
+}
+
+/* ─── VIDEO DEMO ─── */
+function loadVideo(){
+  // Replace src with your actual YouTube embed URL when you have one
+  // e.g. 'https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&rel=0'
+  const src='https://www.youtube.com/embed/?autoplay=1&rel=0&modestbranding=1';
+  const frame=document.getElementById('vid-frame');
+  frame.innerHTML='<iframe src="'+src+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope" allowfullscreen style="width:100%;height:100%;border:none;aspect-ratio:16/9"></iframe>';
+  document.getElementById('vid-placeholder').style.display='none';
+  frame.style.display='block';
+}
+
+/* ─── REFERRAL SYSTEM ─── */
+function genRefCode(name){
+  const base=name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'user';
+  const rand=Math.random().toString(36).slice(2,6);
+  return base+rand;
+}
+function initReferral(name){
+  const code=genRefCode(name);
+  const link='bookvyrse.com/join?ref='+code; // Update with real domain when live
+  const el=document.getElementById('ref-link');
+  if(el)el.value=link;
+}
+function copyRefLink(){
+  const link=document.getElementById('ref-link').value;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link).then(()=>showToast('🔗 Referral link copied! Share it with friends.')).catch(()=>fallbackCopy(link));
+  } else { fallbackCopy(link); }
+}
+function fallbackCopy(text){
+  const el=document.getElementById('ref-link');
+  el.select();
+  try{document.execCommand('copy');showToast('🔗 Referral link copied!');}catch(e){showToast('Copy the link from the box above!');}
+}
+function shareRef(platform){
+  const link=document.getElementById('ref-link')?.value||'bookvyrse.com';
+  const msg=encodeURIComponent('I just joined the BookVyrse waitlist — the AI-powered book mentor for students. Join me and get early access! '+link);
+  const urls={
+    whatsapp:'https://wa.me/?text='+msg,
+    twitter:'https://twitter.com/intent/tweet?text='+msg,
+    instagram:null
+  };
+  if(platform==='instagram'){
+    copyRefLink();
+    showToast('📸 Link copied! Paste it in your Instagram bio or story.');
+    return;
+  }
+  if(urls[platform]) window.open(urls[platform],'_blank','noopener');
+}
+
+</script>
+
+
+</body>
+</html>

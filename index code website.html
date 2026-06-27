@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookVyrse — The Future of Learning</title>
+<meta name="description" content="Learn from the world's greatest books with your personal AI mentor. Personalised reading paths, live AI chat, daily challenges.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080B18;--card:rgba(255,255,255,.05);--card2:rgba(255,255,255,.08);
+  --purple:#7C3AED;--pg:rgba(124,58,237,.25);--blue:#2563EB;
+  --gold:#FBBF24;--gs:rgba(251,191,36,.12);
+  --white:#F1F5F9;--muted:#64748B;--border:rgba(255,255,255,.08);
+  --green:#22c55e;--red:#ef4444;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+#bg-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.3}
+section,nav,footer{position:relative;z-index:1}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;background:rgba(8,11,24,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:padding .3s}
+nav.scrolled{padding:10px 5%}
+.nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-logo span{-webkit-text-fill-color:var(--gold)}
+.nav-links{display:flex;gap:4px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;padding:7px 13px;border-radius:8px;transition:all .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--white);background:var(--card)}
+.nav-right{display:flex;align-items:center;gap:9px}
+.btn-ghost{background:transparent;color:var(--white);border:1px solid var(--border);padding:8px 18px;border-radius:50px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-ghost:hover{border-color:var(--purple);background:var(--pg)}
+.btn-primary{background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 22px var(--pg)}
+.ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.ham span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:all .3s}
+.ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.ham.open span:nth-child(2){opacity:0}
+.ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mob-menu{display:none;position:fixed;top:56px;left:0;right:0;background:rgba(8,11,24,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 5%;z-index:199;flex-direction:column;gap:0}
+.mob-menu.open{display:flex}
+.mob-menu a{color:var(--white);text-decoration:none;font-size:.93rem;font-weight:500;padding:13px 0;border-bottom:1px solid var(--border)}
+.mob-menu a:last-child{border:none;color:var(--gold)}
+
+/* ── SHARED ── */
+.grad{background:linear-gradient(135deg,#A78BFA,#60A5FA,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.grad2{background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tag{font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:12px;display:block}
+h2.sec-title{font-family:'Sora',sans-serif;font-size:clamp(1.8rem,3.5vw,3rem);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:14px}
+.sec-sub{color:var(--muted);font-size:.97rem;line-height:1.75;margin-bottom:40px;max-width:540px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;backdrop-filter:blur(12px)}
+.sc{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.sc.vis{opacity:1;transform:translateY(0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.5s infinite;display:inline-block}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 5% 60px;overflow:hidden}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gs);border:1px solid rgba(251,191,36,.3);border-radius:50px;padding:6px 16px;font-size:.73rem;font-weight:700;color:var(--gold);margin-bottom:24px;text-transform:uppercase;letter-spacing:.8px;animation:fadeUp .7s .1s both}
+h1.hero-title{font-family:'Sora',sans-serif;font-size:clamp(2.4rem,6vw,5.2rem);font-weight:800;line-height:1.06;letter-spacing:-2.5px;max-width:900px;margin-bottom:20px;animation:fadeUp .7s .25s both}
+.hero-sub{color:var(--muted);font-size:1.08rem;max-width:520px;line-height:1.75;margin-bottom:36px;animation:fadeUp .7s .4s both}
+.hero-btns{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-bottom:60px;animation:fadeUp .7s .55s both}
+.btn-big{padding:15px 36px;border-radius:50px;font-size:.97rem;font-weight:700}
+/* PHONE MOCKUP */
+.phone-wrap{position:relative;animation:fadeUp .9s .6s both;max-width:320px;width:100%}
+.phone{background:linear-gradient(145deg,rgba(124,58,237,.2),rgba(37,99,235,.12));border:1px solid rgba(124,58,237,.35);border-radius:32px;padding:20px;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.phone::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle,rgba(124,58,237,.2),transparent 60%);animation:glowPulse 4s ease-in-out infinite;pointer-events:none}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.phone-screen{background:rgba(8,11,24,.92);border:1px solid var(--border);border-radius:22px;padding:16px;position:relative;z-index:1}
+.phone-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.phone-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.ps-num{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ps-lbl{font-size:.65rem;color:var(--muted);margin-top:2px}
+.phone-chat{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:12px}
+.pc-lbl{font-size:.66rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.pc-msg{font-size:.76rem;color:var(--muted);line-height:1.5}
+.floating-books{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fb{position:absolute;font-size:1.8rem;animation:floatBook linear infinite;opacity:.25}
+@keyframes floatBook{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:.25}90%{opacity:.25}100%{transform:translateY(-20px) rotate(360deg);opacity:0}}
+
+/* ── INTERACTIVE DEMO ── */
+#demo{padding:100px 5%;text-align:center}
+.demo-question{font-family:'Sora',sans-serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:800;letter-spacing:-.5px;margin-bottom:36px}
+.goal-pills{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:50px}
+.goal-pill{background:var(--card);border:1px solid var(--border);border-radius:50px;padding:12px 24px;font-size:.92rem;font-weight:600;cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif;color:var(--muted)}
+.goal-pill:hover{border-color:rgba(124,58,237,.5);color:var(--white);background:rgba(124,58,237,.1);transform:translateY(-2px)}
+.goal-pill.selected{background:linear-gradient(135deg,#7C3AED,#2563EB);border-color:transparent;color:#fff;transform:translateY(-3px);box-shadow:0 0 28px var(--pg)}
+.roadmap-wrap{max-width:760px;margin:0 auto;display:none;animation:fadeUp .5s ease both}
+.roadmap-wrap.show{display:block}
+.roadmap-title{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:24px;color:var(--white)}
+.roadmap-steps{display:flex;flex-direction:column;gap:0}
+.rm-step{display:flex;align-items:flex-start;gap:16px;padding:16px;position:relative}
+.rm-step::before{content:'';position:absolute;left:27px;top:52px;bottom:-16px;width:2px;background:linear-gradient(180deg,var(--purple),transparent)}
+.rm-step:last-child::before{display:none}
+.rm-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#2563EB);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;flex-shrink:0;color:#fff}
+.rm-content{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px;flex:1;text-align:left}
+.rm-content h4{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:3px}
+.rm-content p{font-size:.79rem;color:var(--muted);line-height:1.5}
+.rm-tag{display:inline-flex;align-items:center;gap:4px;background:var(--gs);border:1px solid rgba(251,191,36,.2);border-radius:50px;padding:2px 9px;font-size:.67rem;font-weight:600;color:var(--gold);margin-top:6px}
+.rm-ai-preview{margin-top:24px;background:var(--card2);border:1px solid rgba(124,58,237,.25);border-radius:16px;padding:20px;text-align:left}
+.rm-ai-header{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.rm-ai-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#2563EB);display:flex;align-items:center;justify-content:center;font-size:.8rem}
+.rm-ai-name{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700}
+.rm-ai-status{font-size:.7rem;color:var(--green);display:flex;align-items:center;gap:4px}
+.rm-ai-msg{font-size:.84rem;color:var(--muted);line-height:1.65}
+.rm-ai-msg strong{color:var(--white)}
+.rm-cta{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.rm-cta-btn{background:linear-gradient(135deg,#7C3AED,#2563EB);border:none;border-radius:50px;padding:10px 22px;color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow .2s}
+.rm-cta-btn:hover{box-shadow:0 0 20px var(--pg)}
+.rm-cta-sec{background:transparent;border:1px solid var(--border);border-radius:50px;padding:10px 22px;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.rm-cta-sec:hover{border-color:var(--purple);color:var(--white)}
+
+/* ── PRODUCT PREVIEW ── */
+#preview{padding:100px 5%;overflow:hidden}
+.preview-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto}
+.preview-screens{display:flex;gap:14px;align-items:flex-start}
+.scr{background:rgba(8,11,24,.95);border:1px solid var(--border);border-radius:22px;padding:14px;flex:1;transition:transform .3s,box-shadow .3s;cursor:pointer}
+.scr:hover{transform:translateY(-6px);box-shadow:0 0 32px var(--pg)}
+.scr.active{border-color:rgba(124,58,237,.5);box-shadow:0 0 28px var(--pg);transform:translateY(-4px)}
+.scr-label{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:10px}
+.scr-content{display:flex;flex-direction:column;gap:7px}
+.scr-row{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px;font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:7px}
+.scr-row.highlight{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.25);color:var(--white)}
+.preview-right .tag{margin-bottom:10px}
+.preview-feats{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+.pf-item{display:flex;align-items:flex-start;gap:13px}
+.pf-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.2)}
+.pf-text h4{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:3px}
+.pf-text p{font-size:.81rem;color:var(--muted);line-height:1.5}
+
+/* ── FEATURES ── */
+#features{padding:100px 5%;text-align:center}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:960px;margin:0 auto}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:left;transition:all .3s;cursor:pointer}
+.feat-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-5px);box-shadow:0 0 32px var(--pg)}
+.feat-icon{font-size:1.8rem;margin-bottom:14px}
+.feat-title{font-family:'Sora',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:.83rem;color:var(--muted);line-height:1.6}
+.feat-link{font-size:.78rem;color:var(--purple);font-weight:600;margin-top:12px;display:inline-flex;align-items:center;gap:4px;text-decoration:none}
+
+/* ── COMMUNITY ── */
+#community{padding:100px 5%;text-align:center;background:linear-gradient(180deg,transparent,rgba(124,58,237,.05),transparent)}
+.comm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:880px;margin:0 auto}
+.cs-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:30px 20px}
+.cs-num{font-family:'Sora',sans-serif;font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#A78BFA,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.cs-lbl{font-size:.82rem;color:var(--muted)}
+
+/* ── DOWNLOAD ── */
+#download{padding:100px 5%;text-align:center}
+.dl-inner{max-width:640px;margin:0 auto;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(37,99,235,.08));border:1px solid rgba(124,58,237,.25);border-radius:28px;padding:56px 40px}
+.dl-title{font-family:'Sora',sans-serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+.dl-sub{color:var(--muted);font-size:.95rem;line-height:1.7;margin-bottom:36px}
+.dl-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.dl-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:14px;padding:13px 24px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--white);position:relative;overflow:hidden}
+.dl-btn:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.1);transform:translateY(-2px)}
+.dl-btn .di{font-size:1.6rem}
+.dl-btn .dn{font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700}
+.dl-btn .ds{font-size:.65rem;color:var(--muted)}
+.dl-cs-tag{position:absolute;top:6px;right:-14px;background:var(--gold);color:#080B18;font-size:.55rem;font-weight:800;padding:2px 16px;transform:rotate(35deg);letter-spacing:.5px}
+.dl-note{font-size:.78rem;color:var(--muted)}
+.dl-note a{color:var(--purple);text-decoration:none}
+
+/* ── FOOTER ── */
+footer{padding:48px 5% 28px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:36px}
+.ft-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:10px}
+.ft-logo span{-webkit-text-fill-color:var(--gold)}
+.ft-brand p{font-size:.82rem;color:var(--muted);line-height:1.65;max-width:240px}
+.ft-col h4{font-family:'Sora',sans-serif;font-size:.84rem;font-weight:700;margin-bottom:13px}
+.ft-col a{display:block;color:var(--muted);text-decoration:none;font-size:.8rem;margin-bottom:8px;transition:color .2s}
+.ft-col a:hover{color:var(--white)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:20px;border-top:1px solid var(--border)}
+.footer-bottom p{font-size:.76rem;color:var(--muted)}
+.social-row{display:flex;gap:8px}
+.soc-ico{width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.82rem;text-decoration:none;color:var(--white);transition:all .2s}
+.soc-ico:hover{border-color:var(--purple);background:var(--pg)}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:#1A1F35;border:1px solid rgba(124,58,237,.4);border-radius:12px;padding:12px 18px;font-size:.84rem;z-index:999;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:fadeUp .35s ease;max-width:300px;display:none}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .preview-layout{grid-template-columns:1fr;gap:32px}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .comm-stats{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .ft-brand{grid-column:1/-1}
+}
+@media(max-width:640px){
+  .nav-links,.nav-right .btn-ghost,.nav-right .btn-primary{display:none}
+  .ham{display:flex}
+  .feat-grid{grid-template-columns:1fr}
+  .comm-stats{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .preview-screens{flex-direction:column}
+  h1.hero-title{letter-spacing:-1.5px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob-menu">
+  <a href="index.html" onclick="closeMob()">Home</a>
+  <a href="library.html" onclick="closeMob()">Library</a>
+  <a href="ai.html" onclick="closeMob()">AI Mentor</a>
+  <a href="paths.html" onclick="closeMob()">Learning Paths</a>
+  <a href="premium.html" onclick="closeMob()">Premium</a>
+  <a href="about.html" onclick="closeMob()">About</a>
+  <a href="#download" onclick="closeMob()">Download App</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">Book<span>Vyrse</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="library.html">Library</a></li>
+    <li><a href="ai.html">AI Mentor</a></li>
+    <li><a href="paths.html">Learning Paths</a></li>
+    <li><a href="premium.html">Premium</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="premium.html" class="btn-ghost">Sign In</a>
+    <a href="#download" class="btn-primary">Download App</a>
+    <div class="ham" id="ham" onclick="toggleMob()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="floating-books" id="floating-books"></div>
+  <div class="hero-badge"><span class="pulse" style="color:var(--gold)"></span>&nbsp;9,847+ Students · Beta Now Live</div>
+  <h1 class="hero-title">The Future of<br><span class="grad">Learning Starts Here.</span></h1>
+  <p class="hero-sub">Learn from the world's greatest books with your personal AI mentor. Personalised paths, daily challenges, real growth.</p>
+  <div class="hero-btns">
+    <a href="#demo" class="btn-primary btn-big">Start Learning →</a>
+    <a href="ai.html" class="btn-ghost btn-big">✨ Try AI Demo</a>
+  </div>
+  <!-- PHONE MOCKUP -->
+  <div class="phone-wrap sc">
+    <div class="phone">
+      <div class="phone-screen">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <span style="font-family:'Sora',sans-serif;font-size:.82rem;font-weight:800;background:linear-gradient(135deg,#7C3AED,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Book<span style="-webkit-text-fill-color:var(--gold)">Vyrse</span></span>
+          <span style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);border-radius:50px;padding:3px 10px;font-size:.65rem;color:#A78BFA">🔥 14 day streak</span>
+        </div>
+        <div class="phone-stat-row">
+          <div class="phone-stat"><div class="ps-num">6</div><div class="ps-lbl">Books read</div></div>
+          <div class="phone-stat"><div class="ps-num">24</div><div class="ps-lbl">Challenges</div></div>
+        </div>
+        <div class="phone-chat">
+          <div class="pc-lbl">🤖 AI Mentor</div>
+          <div class="pc-msg">"Your next lesson: The 1% rule. Want me to show how it applies to your goals today?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INTERACTIVE DEMO ══ -->
+<section id="demo">
+  <span class="tag" style="display:block;text-align:center">Interactive Experience</span>
+  <h2 class="sec-title demo-question">What do you want to become?</h2>
+  <div class="goal-pills">
+    <button class="goal-pill" onclick="selectGoal('entrepreneur',this)">🚀 Entrepreneur</button>
+    <button class="goal-pill" onclick="selectGoal('student',this)">🎓 Top Student</button>
+    <button class="goal-pill" onclick="selectGoal('confident',this)">💪 Confident</button>
+    <button class="goal-pill" onclick="selectGoal('productive',this)">⚡ Productive</button>
+    <button class="goal-pill" onclick="selectGoal('communicator',this)">🗣️ Better Communicator</button>
+  </div>
+  <div class="roadmap-wrap" id="roadmap-wrap">
+    <div class="roadmap-title" id="rm-title">📈 Your Personalised Learning Roadmap</div>
+    <div class="roadmap-steps" id="rm-steps"></div>
+    <div class="rm-ai-preview" id="rm-ai">
+      <div class="rm-ai-header">
+        <div class="rm-ai-av">🤖</div>
+        <div>
+          <div class="rm-ai-name">BookVyrse AI Mentor</div>
+          <div class="rm-ai-status"><span class="pulse" style="color:var(--green)"></span>&nbsp;Online now</div>
+        </div>
+      </div>
+      <div class="rm-ai-msg" id="rm-ai-msg"></div>
+      <div class="rm-cta">
+        <button class="rm-cta-btn" onclick="window.location.href='ai.html'">💬 Talk to AI Mentor</button>
+        <button class="rm-cta-sec" onclick="window.location.href='paths.html'">View Full Path →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRODUCT PREVIEW ══ -->
+<section id="preview">
+  <div class="preview-layout">
+    <div class="preview-screens sc">
+      <div class="scr active" id="scr-home">
+        <div class="scr-label">📱 Home</div>
+        <div class="scr-content">
+          <div class="scr-row highlight">🔥 14 Day Streak · Level 5</div>
+          <div class="scr-row">⚛️ Atomic Habits — 68% done</div>
+          <div class="scr-row">🎯 Today's challenge ready</div>
+          <div class="scr-row highlight">🤖 AI: "Ask me anything..."</div>
+        </div>
+      </div>
+      <div class="scr" id="scr-lib">
+        <div class="scr-label">📚 Library</div>
+        <div class="scr-content">
+          <div class="scr-row">⚛️ Atomic Habits</div>
+          <div class="scr-row">💰 Rich Dad Poor Dad</div>
+          <div class="scr-row highlight">🔮 Zero to One — New</div>
+          <div class="scr-row">🎯 Deep Work</div>
+        </div>
+      </div>
+    </div>
+    <div class="preview-right sc">
+      <span class="tag">Product Preview</span>
+      <h2 class="sec-title">Looks like the future.<br><span class="grad2">Works like a mentor.</span></h2>
+      <p class="sec-sub">BookVyrse isn't another reading app. It's a complete learning system — built for students who want to actually change.</p>
+      <div class="preview-feats">
+        <div class="pf-item"><div class="pf-icon">📚</div><div class="pf-text"><h4>Smart Book Summaries</h4><p>25 curated books with chapter previews and 3 key lessons each — all free to explore.</p></div></div>
+        <div class="pf-item"><div class="pf-icon">🤖</div><div class="pf-text"><h4>Live AI Mentor</h4><p>Ask anything, get personalised answers in seconds. Powered by Claude AI.</p></div></div>
+        <div class="pf-item"><div class="pf-icon">🏆</div><div class="pf-text"><h4>Challenges & Streaks</h4><p>Daily challenges after every chapter. Progress you can actually see and measure.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TOP FEATURES ══ -->
+<section id="features">
+  <span class="tag" style="display:block;text-align:center">What's Inside</span>
+  <h2 class="sec-title" style="text-align:center;margin:0 auto 14px">Everything you need<br>to learn smarter</h2>
+  <p class="sec-sub" style="text-align:center;margin:0 auto 44px">Six features that make BookVyrse unlike anything else out there.</p>
+  <div class="feat-grid">
+    <div class="feat-card sc"><div class="feat-icon">📚</div><div class="feat-title">Smart Summaries</div><div class="feat-desc">Chapter previews and 3 key lessons for every book. Learn the core ideas before committing to the full read.</div><a class="feat-link" href="library.html">Browse Library →</a></div>
+    <div class="feat-card sc"><div class="feat-icon">🤖</div><div class="feat-title">AI Mentor</div><div class="feat-desc">Ask anything about any book and get personalised answers instantly. Your 24/7 book mentor that never sleeps.</div><a class="feat-link" href="ai.html">Try AI Now →</a></div>
+    <div class="feat-card sc"><div class="feat-icon">🎙️</div><div class="feat-title">Talk to Authors</div><div class="feat-desc">AI-powered author simulations let you ask James Clear, Cal Newport and more your deepest questions. <span style="color:var(--gold);font-size:.75rem">Premium</span></div><a class="feat-link" href="premium.html">Unlock →</a></div>
+    <div class="feat-card sc"><div class="feat-icon">🧠</div><div class="feat-title">AI Quiz</div><div class="feat-desc">Test what you've actually learned with AI-generated quizzes after every chapter. Spaced repetition built in. <span style="color:var(--gold);font-size:.75rem">Coming Soon</span></div><a class="feat-link" href="premium.html">Learn More →</a></div>
+    <div class="feat-card sc"><div class="feat-icon">🔥</div><div class="feat-title">Reading Streaks</div><div class="feat-desc">Daily reading goals, streak tracking, and XP that make building a reading habit actually feel good.</div><a class="feat-link" href="paths.html">See Paths →</a></div>
+    <div class="feat-card sc"><div class="feat-icon">🏆</div><div class="feat-title">Challenges</div><div class="feat-desc">Real-world challenges after every chapter — not bullet points but actual things to do. Learning that sticks.</div><a class="feat-link" href="paths.html">View Challenges →</a></div>
+  </div>
+</section>
+
+<!-- ══ COMMUNITY ══ -->
+<section id="community">
+  <span class="tag" style="display:block;text-align:center">Community</span>
+  <h2 class="sec-title" style="text-align:center;margin:0 auto 44px">Students who chose<br><span class="grad">to grow differently.</span></h2>
+  <div class="comm-stats">
+    <div class="cs-card sc"><div class="cs-num" id="c1">0</div><div class="cs-lbl">Students</div></div>
+    <div class="cs-card sc"><div class="cs-num" id="c2">0</div><div class="cs-lbl">Books Curated</div></div>
+    <div class="cs-card sc"><div class="cs-num" id="c3">0</div><div class="cs-lbl">AI Conversations</div></div>
+    <div class="cs-card sc"><div class="cs-num" id="c4">0</div><div class="cs-lbl">Hours Saved</div></div>
+  </div>
+</section>
+
+<!-- ══ DOWNLOAD ══ -->
+<section id="download">
+  <div class="dl-inner sc">
+    <h2 class="dl-title">Download BookVyrse.<br><span class="grad">Start learning today.</span></h2>
+    <p class="dl-sub">Website live now. App launching July 2025. Join the waitlist and get 50% off Premium for life.</p>
+    <div class="dl-btns">
+      <a class="dl-btn" href="#" onclick="dlClick('ios');return false"><span class="ds">Download on the</span><span class="dn">App Store</span><span class="di">🍎</span><span class="dl-cs-tag">July 2025</span></a>
+      <a class="dl-btn" href="#" onclick="dlClick('android');return false"><span class="ds">Get it on</span><span class="dn">Google Play</span><span class="di">▶</span><span class="dl-cs-tag">July 2025</span></a>
+    </div>
+    <p class="dl-note">Or <a href="https://bookvyrse-five.vercel.app">try the live website now</a> — no download needed.</p>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="ft-brand">
+      <span class="ft-logo">Book<span>Vyrse</span></span>
+      <p>The AI-powered reading companion for students who want to actually grow. Built by Keya Gupta, 16, Jaipur.</p>
+    </div>
+    <div class="ft-col"><h4>Product</h4><a href="library.html">Library</a><a href="ai.html">AI Mentor</a><a href="paths.html">Learning Paths</a><a href="premium.html">Premium</a></div>
+    <div class="ft-col"><h4>Company</h4><a href="about.html">Our Story</a><a href="about.html#founder">Founder</a><a href="#" onclick="showToast('📧 bookversehq@gmail.com');return false">Contact</a></div>
+    <div class="ft-col"><h4>Connect</h4><a href="https://www.youtube.com/channel/UChONMmUhxXf8OZ4o6fdzGCw" target="_blank">YouTube</a><a href="https://instagram.com/bookvyrse.ai" target="_blank">Instagram</a><a href="#" onclick="showToast('X coming soon!');return false">X (Twitter)</a></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 BookVyrse · Building in public · Jaipur, Rajasthan 📚</p>
+    <div class="social-row">
+      <a class="soc-ico" href="https://www.youtube.com/channel/UChONMmUhxXf8OZ4o6fdzGCw" target="_blank">▶</a>
+      <a class="soc-ico" href="https://instagram.com/bookvyrse.ai" target="_blank">📸</a>
+      <a class="soc-ico" href="#" onclick="showToast('X coming soon!');return false">𝕏</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PARTICLES */
+(()=>{const cv=document.getElementById('bg-canvas'),ct=cv.getContext('2d');let W,H,P=[];const rsz=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};rsz();addEventListener('resize',rsz,{passive:true});for(let i=0;i<70;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.4,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,c:Math.random()>.5?'#7C3AED':'#2563EB'});const draw=()=>{ct.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ct.beginPath();ct.arc(p.x,p.y,p.r,0,Math.PI*2);ct.fillStyle=p.c;ct.fill()});for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ct.beginPath();ct.moveTo(P[i].x,P[i].y);ct.lineTo(P[j].x,P[j].y);ct.strokeStyle=`rgba(124,58,237,${.08*(1-d/100)})`;ct.lineWidth=.5;ct.stroke()}};requestAnimationFrame(draw)};draw()})();
+
+/* FLOATING BOOKS */
+const emojis=['📚','📖','🔮','⚛️','💡','🧘','💰','🎯'];
+const fb=document.getElementById('floating-books');
+for(let i=0;i<8;i++){const d=document.createElement('div');d.className='fb';d.textContent=emojis[i%emojis.length];d.style.cssText=`left:${Math.random()*100}%;animation-duration:${12+Math.random()*10}s;animation-delay:${Math.random()*8}s`;fb.appendChild(d)}
+
+/* NAV */
+addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',scrollY>60),{passive:true});
+function toggleMob(){document.getElementById('ham').classList.toggle('open');document.getElementById('mob-menu').classList.toggle('open')}
+function closeMob(){document.getElementById('ham').classList.remove('open');document.getElementById('mob-menu').classList.remove('open')}
+
+/* TOAST */
+let tT;function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(tT);tT=setTimeout(()=>t.style.display='none',3000)}
+
+/* SCROLL ANIMATIONS */
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.08});
+document.querySelectorAll('.sc').forEach(el=>obs.observe(el));
+
+/* COUNTERS */
+function animCtr(el,target,sfx,dur){let st=null;const s=ts=>{if(!st)st=ts;const p=Math.min((ts-st)/dur,1),v=Math.floor(p*target);el.textContent=(v>=1000?v.toLocaleString():v)+sfx;if(p<1)requestAnimationFrame(s);else el.textContent=(target>=1000?target.toLocaleString():target)+sfx};requestAnimationFrame(s)}
+const cObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){animCtr(document.getElementById('c1'),9847,'+',1800);animCtr(document.getElementById('c2'),25,'+',1200);animCtr(document.getElementById('c3'),50000,'+',2000);animCtr(document.getElementById('c4'),250000,'+',2200);cObs.disconnect()}})},{threshold:.3});
+cObs.observe(document.getElementById('community'));
+
+/* INTERACTIVE GOAL SELECTOR */
+const GOALS={
+  entrepreneur:{
+    title:'📈 Entrepreneur Learning Roadmap',
+    steps:[
+      {e:'📖',book:'The Lean Startup',auth:'Eric Ries',why:'Understand how to build and test your idea fast — without wasting months.'},
+      {e:'🔮',book:'Zero to One',auth:'Peter Thiel',why:'Learn to build something genuinely new instead of copying what already exists.'},
+      {e:'💡',book:'The $100 Startup',auth:'Chris Guillebeau',why:'Start with almost nothing. Launch your first product this week.'},
+      {e:'🎯',book:'Deep Work',auth:'Cal Newport',why:'Build the focused work habits that separate successful founders from the rest.'},
+    ],
+    ai:'You want to build something. Most 16-year-olds wait for permission — you clearly don\'t. Start with <strong>The Lean Startup</strong> this week. I\'ll guide you through each chapter and set daily founder challenges.'
+  },
+  student:{
+    title:'🎓 Top Student Learning Roadmap',
+    steps:[
+      {e:'🎯',book:'Deep Work',auth:'Cal Newport',why:'The #1 skill that separates top students — the ability to focus without distraction.'},
+      {e:'🧩',book:'Make It Stick',auth:'Peter Brown',why:'Science-backed study techniques that actually work — not just re-reading your notes.'},
+      {e:'💡',book:'Ultralearning',auth:'Scott Young',why:'Master any subject faster than you thought possible with aggressive self-directed learning.'},
+      {e:'🐸',book:"Eat That Frog!",auth:'Brian Tracy',why:'Stop procrastinating. Start with your hardest task first. Change your results permanently.'},
+    ],
+    ai:'Let\'s build a study system that actually works. <strong>Deep Work</strong> first — it will change how you study in the next 7 days. I\'ll check in every day with a challenge.'
+  },
+  confident:{
+    title:'💪 Build Confidence Roadmap',
+    steps:[
+      {e:'🧘',book:'Think Like a Monk',auth:'Jay Shetty',why:'Quiet the self-doubt. Find your purpose. Build unshakeable inner confidence.'},
+      {e:'🏔️',book:'The Mountain Is You',auth:'Brianna Wiest',why:'Understand why you self-sabotage and how to permanently overcome it.'},
+      {e:'⚛️',book:'Atomic Habits',auth:'James Clear',why:'Build the identity of a confident person — one small action at a time.'},
+      {e:'🌟',book:'The 7 Habits',auth:'Stephen Covey',why:'Master the timeless principles that confident, effective people live by.'},
+    ],
+    ai:'Confidence isn\'t a feeling — it\'s built through action. <strong>Think Like a Monk</strong> will give you the clearest framework I know for building it. Ready to start today?'
+  },
+  productive:{
+    title:'⚡ Productivity Powerhouse Roadmap',
+    steps:[
+      {e:'🎯',book:'Deep Work',auth:'Cal Newport',why:'Distraction is your biggest enemy. This book kills it permanently.'},
+      {e:'🐸',book:"Eat That Frog!",auth:'Brian Tracy',why:'21 ways to stop procrastinating and actually finish what you start.'},
+      {e:'🧠',book:'Limitless',auth:'Jim Kwik',why:'Upgrade your brain — read faster, remember more, focus longer.'},
+      {e:'⚛️',book:'Atomic Habits',auth:'James Clear',why:'Build a system of habits that makes productivity automatic, not effortful.'},
+    ],
+    ai:'Most productivity advice is surface-level. Let\'s build something that actually lasts. Start with <strong>Deep Work</strong> — I\'ll give you a daily focus challenge after each chapter.'
+  },
+  communicator:{
+    title:'🗣️ Communication Mastery Roadmap',
+    steps:[
+      {e:'🎭',book:'Surrounded by Idiots',auth:'Thomas Erikson',why:'Understand the 4 types of people and how to communicate with each one effectively.'},
+      {e:'🎩',book:'Influence',auth:'Robert Cialdini',why:'The 6 universal principles of persuasion — used by the best communicators in the world.'},
+      {e:'🌊',book:'The Laws of Human Nature',auth:'Robert Greene',why:'Read people\'s hidden motivations. Communicate with empathy and precision.'},
+      {e:'🧘',book:'Think Like a Monk',auth:'Jay Shetty',why:'Communicate from a place of calm, clarity and genuine confidence.'},
+    ],
+    ai:'Great communication starts with understanding people. <strong>Surrounded by Idiots</strong> will literally change how you see every conversation. Want to start tonight?'
+  }
+};
+
+let selGoal=null;
+function selectGoal(goal,btn){
+  document.querySelectorAll('.goal-pill').forEach(p=>p.classList.remove('selected'));
+  btn.classList.add('selected');
+  selGoal=goal;
+  const d=GOALS[goal];
+  const wrap=document.getElementById('roadmap-wrap');
+  const stepsEl=document.getElementById('rm-steps');
+  document.getElementById('rm-title').textContent=d.title;
+  stepsEl.innerHTML='';
+  d.steps.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='rm-step';
+    div.style.cssText='animation:fadeUp .4s ease '+(i*.12)+'s both;opacity:0';
+    div.innerHTML=`<div class="rm-num">${i+1}</div><div class="rm-content"><h4>${s.e} ${s.book}</h4><p>${s.auth}</p><p style="margin-top:5px">${s.why}</p><span class="rm-tag">📖 Preview free</span></div>`;
+    stepsEl.appendChild(div);
+    setTimeout(()=>div.style.opacity='1',50);
+  });
+  document.getElementById('rm-ai-msg').innerHTML=d.ai;
+  wrap.classList.add('show');
+  setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+/* PRODUCT PREVIEW SCREENS */
+let scrTimer=setInterval(()=>{
+  const screens=['scr-home','scr-lib'];
+  const cur=document.querySelector('.scr.active');
+  const idx=screens.indexOf(cur?.id||'scr-home');
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));
+  document.getElementById(screens[(idx+1)%screens.length]).classList.add('active');
+},3000);
+
+/* DOWNLOAD */
+function dlClick(p){showToast(p==='ios'?'🍎 iOS app coming July 2025 — you\'re on the list!':'▶ Android app coming July 2025 — you\'re on the list!');setTimeout(()=>window.location.href='#download',800)}
+</script>
+</body>
+</html>
